@@ -68,7 +68,7 @@ public class ImgCache {
 				if (file.exists()) {
 					long time = new Date().getTime() / 1000;
 					long timeLastModified = file.lastModified() / 1000;
-					if ( timeLastModified + cacheTime > time ) {
+					if ( timeLastModified + cacheTime < time ) {
 						file.delete();
 						file.createNewFile();
 						fileSave(new URL(uri).openStream(), new FileOutputStream(file));

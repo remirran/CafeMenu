@@ -6,6 +6,8 @@
     <ImageView
         android:id="@+id/main_table_img" 
         android:contentDescription="@string/main_text_img_desc"
-        android:layout_width="460dp"
-    	android:layout_height="325dp"/>
+        android:adjustViewBounds="true"
+    	android:scaleType="centerCrop"
+        android:layout_width="503dp"
+    	android:layout_height="348dp"/>
 </LinearLayout>
