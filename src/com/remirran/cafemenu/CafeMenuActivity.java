@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -59,7 +60,7 @@ public class CafeMenuActivity extends Activity {
         for (int i = 0; i < dishes.length; i++ ) {
         	View tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
         	ImageView tImg = (ImageView) tView.findViewById(R.id.main_table_img);
-        	ic.fetchImage(this, 0, dishes[i][1], tImg);
+        	ic.fetchImage(this, 3600, dishes[i][1], tImg);
         	tImg.setContentDescription(dishes[i][0]);
         	tTableRows[i%2].addView(tView);
         }

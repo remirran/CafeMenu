@@ -59,9 +59,9 @@ public class ImgCache {
 	private Bitmap downloadImage(final Context context, final int cacheTime, final String uri, final ImageView iView){
 		Bitmap retval = null;
 		if (cacheTime != 0) {
-			File file = new File(context.getExternalCacheDir(), md5(uri) + ".cache");
+			File file = new File(context.getCacheDir(), md5(uri) + ".cache");
 			try {
-				File dir = new File(context.getExternalCacheDir(), "");
+				File dir = new File(context.getCacheDir(), "");
 				if (!dir.exists()) {
 					dir.mkdirs();
 				}

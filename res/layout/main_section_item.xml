@@ -2,5 +2,7 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/DigitalMenu.Main.SectionItem"
     android:id="@+id/main_section_item"
+    android:adjustViewBounds="true"
+    android:scaleType="centerCrop"
     android:text="@string/sample_sub">
 </TextView>
