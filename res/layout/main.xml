@@ -2,93 +2,49 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
 	<LinearLayout 
+	    android:id="@+id/main_title_layout"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:background="#555555"
 	    android:padding="5dp">
-	    <Button 
-	        android:text="@string/sample_section"
-	        android:id="@+id/section_button1"
-	        android:layout_weight="1"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        style="@android:style/Widget.Holo.Button">
-	    </Button>
-	    <Button 
-	        android:text="@string/sample_section"
-	        android:id="@+id/section_button2"
-	        android:layout_weight="1"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        style="@android:style/Widget.Holo.Button">
-	    </Button>
-	    <Button 
-	        android:text="@string/sample_section"
-	        android:id="@+id/section_button3"
-	        android:layout_weight="1"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        style="@android:style/Widget.Holo.Button">
-	    </Button>
-	    <Button 
-	        android:text="@string/sample_section"
-	        android:id="@+id/section_button4"
-	        android:layout_weight="1"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        style="@android:style/Widget.Holo.Button">
-	    </Button>
 	</LinearLayout>
-
-	<ScrollView
-	    android:layout_width="wrap_content"
-	    android:layout_height="300dp"
-	    android:orientation="vertical" >
-		<LinearLayout 
-		    android:layout_width="fill_parent"
-    		android:layout_height="wrap_content">
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button1"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button2"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button3"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button4"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button5"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button6"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button7"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    	<Button 
-	    	    android:text="@string/sample_sub"
-	    	    android:id="@+id/subsect_button8"
-	    	    android:layout_width="300dp"
-	    	    android:layout_height="wrap_content"/>
-	    </LinearLayout>
-	</ScrollView>
+	<LinearLayout 
+	    android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+		<ListView 
+			android:id="@+id/main_list_layout"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+   			android:layout_height="fill_parent"
+   			android:orientation="vertical">
+		</ListView>
+		<HorizontalScrollView 
+		    android:layout_width="0dp"
+		    android:layout_weight="4"
+    		android:layout_height="fill_parent"
+    		android:scrollbarFadeDuration="0">
+		    <TableLayout 
+		        android:layout_width="wrap_content"
+   				android:layout_height="fill_parent">
+   				<TableRow 
+   				    android:id="@+id/main_table_row1"
+   				    android:layout_width="wrap_content"
+   				    android:layout_height="0dp">
+   				</TableRow>	
+   				<TableRow 
+   				    android:id="@+id/main_table_row2"
+   				    android:layout_width="wrap_content"
+   				    android:layout_height="0dp">
+   				</TableRow>	        
+		    </TableLayout>
+		</HorizontalScrollView>
+	</LinearLayout>
+	<Button 
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/main_text_confirm"
+	    style="@style/DigitalMenu.Main.TitleButton"/>
 </LinearLayout>

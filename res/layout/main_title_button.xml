@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:text="@string/sample_section"
+	android:id="@+id/main_title_button"
+	style="@style/DigitalMenu.Main.TitleButton" >
+</Button>

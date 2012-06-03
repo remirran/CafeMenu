@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CafeMenu</string>
+    <string name="app_name">DigitalMenu</string>
     <string name="sample_section">Европейская кухня</string>
     <string name="sample_sub">Холодные закуски</string>
+    <string name="main_text_confirm">Заказать</string>
+    <string name="main_text_img_desc">No image</string>
 
 </resources>
