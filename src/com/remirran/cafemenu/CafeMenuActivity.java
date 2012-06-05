@@ -1,22 +1,31 @@
 package com.remirran.cafemenu;
 
+import java.util.Arrays;
+
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
     /** Called when the activity is first created. */
+	/* Constants */
+	private final ImgCache ic = new ImgCache();
 	/*Stubs*/
-	String title_buttons[] = {"Европейская кухня", "Кавказская кухня", "Японская кухня", "Бакалея"}; 
-	String section_items[] = {"Холодные закуски", "Горячие закуски", "Салаты рыбные", "Салаты мясные", "Салаты овощные", "Первые блюда", "Вторые блюда", "Гарниры", "Закуски к пиву"};
-	String dishes[][] = {
+	private final String title_buttons[] = {"Европейская кухня", "Кавказская кухня", "Японская кухня", "Бакалея"}; 
+	private final String section_items[] = {"Холодные закуски", "Горячие закуски", "Салаты рыбные", "Салаты мясные", "Салаты овощные", "Первые блюда", "Вторые блюда", "Гарниры", "Закуски к пиву"};
+	private final String dishes[][] = {
 			{ "Филе сельди с картошкой", "http://edem.argroup52.ru/assets/images/europa/seld%20s%20kartoph.jpg", "90" },
 			{ "Язык отварной", "http://edem.argroup52.ru/assets/images/europa/2.jpg", "160" },
 			{ "Русский разносол", "http://edem.argroup52.ru/assets/images/europa/raznosol.jpg", "160" },
@@ -27,6 +36,12 @@ public class CafeMenuActivity extends Activity {
 			{ "Сырная тарелка", "http://edem.argroup52.ru/assets/images/europa/8.jpg", "180" },
 			{ "Маслины/оливки", "http://edem.argroup52.ru/assets/images/europa/9.jpg", "75" },
 			{ "Лимонная нарезка с сахаром", "http://edem.argroup52.ru/assets/images/europa/10.jpg", "50" }
+	};
+	private final String splashes[] = {
+			"http://edem.argroup52.ru/assets/images/9/(1).JPG",
+			"http://edem.argroup52.ru/assets/images/9/imagesK4.JPG",
+			"http://edem.argroup52.ru/assets/images/9/imagesK3.JPG",
+			"http://edem.argroup52.ru/assets/images/9/imageK2.JPG"
 	};
 	
     @Override
@@ -52,17 +67,44 @@ public class CafeMenuActivity extends Activity {
         		R.layout.main_section_item, section_items);
         tLstLayout.setAdapter(tLstAdapter);
         
-        /* Fill table */
-        TableRow tTableRows[] = { (TableRow) findViewById(R.id.main_table_row1), 
-        		(TableRow) findViewById(R.id.main_table_row2) };
-        ImgCache ic = new ImgCache();
-        for (int i = 0; i < dishes.length; i++ ) {
-        	View tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
-        	ImageView tImg = (ImageView) tView.findViewById(R.id.main_table_img);
-        	ic.fetchImage(this, 3600, dishes[i][1], tImg);
-        	tImg.setContentDescription(dishes[i][0]);
-        	tTableRows[i%2].addView(tView);
-        }
+        tLstLayout.setOnItemClickListener(new OnItemClickListener() {
+        	@Override
+            public void onItemClick(AdapterView<?> lv, View v, int position, long id) {
+            	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
+            	tTableLayout.removeAllViews();
+            	
+            	/* Start drawing */
+                LayoutInflater ltInflatter = getLayoutInflater();
+                View tView = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
+                
+                /* Fill table */
+                TableRow tTableRows[] = { (TableRow) tView.findViewById(R.id.main_table_row1), 
+                		(TableRow) tView.findViewById(R.id.main_table_row2) };
+                for (int i = 0; i < dishes.length; i++ ) {
+                	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
+                	ImageView tImg = (ImageView) tView.findViewById(R.id.main_table_img);
+                	ic.fetchImage(CafeMenuActivity.this, 3600, dishes[i][1], tImg);
+                	tImg.setContentDescription(dishes[i][0]);
+                	tTableRows[i%2].addView(tView);
+                }
+                ((TextView) v).setBackgroundColor(Color.parseColor("#cccccc"));
+            }
+		});
+        
+        /* Init side menu with first section data */
+        titleButtonOnClick(tTtlLayout.getChildAt(0));
 
     }
+    public void titleButtonOnClick(View v) {
+    	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
+    	tTableLayout.removeAllViews();
+    	
+    	LayoutInflater ltInflatter = getLayoutInflater();
+        View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
+        ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
+        int index = Arrays.asList(title_buttons).indexOf(((Button) v).getText());
+        ic.fetchImage(this, 3600, splashes[index], tImgView);
+        tTableLayout.addView(tView);
+    }
+
 }

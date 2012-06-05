@@ -2,5 +2,6 @@
 <Button xmlns:android="http://schemas.android.com/apk/res/android"
     android:text="@string/sample_section"
 	android:id="@+id/main_title_button"
-	style="@style/DigitalMenu.Main.TitleButton" >
+	style="@style/DigitalMenu.Main.TitleButton"
+	android:onClick="titleButtonOnClick" >
 </Button>

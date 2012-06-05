@@ -32,24 +32,11 @@
 				style="@style/DigitalMenu.Main.TitleButton"/>
 		</LinearLayout>
 		<HorizontalScrollView 
+		    android:id="@+id/main_htable_layout"
 		    android:layout_width="0dp"
 		    android:layout_weight="11"
 	   		android:layout_height="wrap_content"
 	   		android:scrollbarFadeDuration="0">
-		    <TableLayout 
-		        android:layout_width="wrap_content"
-	  				android:layout_height="fill_parent">
-	  				<TableRow 
-	  				    android:id="@+id/main_table_row1"
-	  				    android:layout_width="wrap_content"
-	  				    android:layout_height="0dp">
-	  				</TableRow>	
-	  				<TableRow 
-	  				    android:id="@+id/main_table_row2"
-	  				    android:layout_width="wrap_content"
-	  				    android:layout_height="0dp">
-	  				</TableRow>	        
-		    </TableLayout>
 		</HorizontalScrollView>
 	</LinearLayout>
 </LinearLayout>
