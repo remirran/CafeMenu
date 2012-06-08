@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -19,9 +20,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
-    /** Called when the activity is first created. */
 	/* Constants */
 	private final ImgCache ic = new ImgCache();
+	private LayoutInflater ltInflatter;
 	/*Stubs*/
 	private final String title_buttons[] = {"Европейская кухня", "Кавказская кухня", "Японская кухня", "Бакалея"}; 
 	private final String section_items[] = {"Холодные закуски", "Горячие закуски", "Салаты рыбные", "Салаты мясные", "Салаты овощные", "Первые блюда", "Вторые блюда", "Гарниры", "Закуски к пиву"};
@@ -44,13 +45,12 @@ public class CafeMenuActivity extends Activity {
 			"http://edem.argroup52.ru/assets/images/9/imageK2.JPG"
 	};
 	
-    @Override
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        /* Start drawing */
-        LayoutInflater ltInflatter = getLayoutInflater();
+        ltInflatter = getLayoutInflater();
         
         /* Fill titles*/
         LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
@@ -71,10 +71,10 @@ public class CafeMenuActivity extends Activity {
         	@Override
             public void onItemClick(AdapterView<?> lv, View v, int position, long id) {
             	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
-            	tTableLayout.removeAllViews();
+            	unbindDrawables(tTableLayout);
+            	Runtime.getRuntime().gc();
             	
             	/* Start drawing */
-                LayoutInflater ltInflatter = getLayoutInflater();
                 View tView = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
                 
                 /* Fill table */
@@ -97,14 +97,29 @@ public class CafeMenuActivity extends Activity {
     }
     public void titleButtonOnClick(View v) {
     	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
-    	tTableLayout.removeAllViews();
+    	unbindDrawables(tTableLayout);
+    	Runtime.getRuntime().gc();
     	
-    	LayoutInflater ltInflatter = getLayoutInflater();
         View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
         ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
         int index = Arrays.asList(title_buttons).indexOf(((Button) v).getText());
         ic.fetchImage(this, 3600, splashes[index], tImgView);
         tTableLayout.addView(tView);
+    }
+    
+    private void unbindDrawables (View v) {
+    	if (v.getBackground() != null){
+    		v.getBackground().setCallback(null);
+    		if (v instanceof ImageView) {
+    			((ImageView) v).getDrawable().setCallback(null);
+    		}
+    	}
+    	if (v instanceof ViewGroup) {
+    		for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++){
+    			unbindDrawables(((ViewGroup) v).getChildAt(i));
+    		}
+    		((ViewGroup) v).removeAllViews();
+    	}
     }
 
 }
