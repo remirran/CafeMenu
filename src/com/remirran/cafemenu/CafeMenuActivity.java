@@ -3,8 +3,13 @@ package com.remirran.cafemenu;
 import java.util.Arrays;
 
 import android.app.Activity;
+import android.app.DownloadManager.Request;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +26,8 @@ import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
 	/* Constants */
+	private final int REQ_CODE_TABLE_ID = 1;
+	/* Tools */
 	private final ImgCache ic = new ImgCache();
 	private LayoutInflater ltInflatter;
 	/*Stubs*/
@@ -47,8 +54,13 @@ public class CafeMenuActivity extends Activity {
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        /* Init with the table number */
+        /* TODO: skip this in locked state */
+        Intent tInitScreen = new Intent(this,InitScreenActivity.class);
+        startActivityForResult(tInitScreen, REQ_CODE_TABLE_ID);
         
         ltInflatter = getLayoutInflater();
         
@@ -72,7 +84,7 @@ public class CafeMenuActivity extends Activity {
             public void onItemClick(AdapterView<?> lv, View v, int position, long id) {
             	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
             	unbindDrawables(tTableLayout);
-            	Runtime.getRuntime().gc();
+            	System.gc();
             	
             	/* Start drawing */
                 View tView = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
@@ -87,6 +99,7 @@ public class CafeMenuActivity extends Activity {
                 	tImg.setContentDescription(dishes[i][0]);
                 	tTableRows[i%2].addView(tView);
                 }
+                /* TODO: remove this */
                 ((TextView) v).setBackgroundColor(Color.parseColor("#cccccc"));
             }
 		});
@@ -98,7 +111,7 @@ public class CafeMenuActivity extends Activity {
     public void titleButtonOnClick(View v) {
     	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
     	unbindDrawables(tTableLayout);
-    	Runtime.getRuntime().gc();
+    	System.gc();
     	
         View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
         ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
@@ -109,16 +122,40 @@ public class CafeMenuActivity extends Activity {
     
     private void unbindDrawables (View v) {
     	if (v.getBackground() != null){
-    		v.getBackground().setCallback(null);
     		if (v instanceof ImageView) {
-    			((ImageView) v).getDrawable().setCallback(null);
+    			BitmapDrawable content = (BitmapDrawable) ((ImageView) v).getDrawable();
+    			if (content != null) {
+    				Bitmap contentImg = content.getBitmap();
+    				contentImg.recycle();
+    				contentImg = null;
+    			}
     		}
+    		v.getBackground().setCallback(null);
     	}
     	if (v instanceof ViewGroup) {
     		for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++){
     			unbindDrawables(((ViewGroup) v).getChildAt(i));
     		}
     		((ViewGroup) v).removeAllViews();
+    	}
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if (data == null) {
+    		return;
+    	}
+    	if (resultCode == RESULT_OK) {
+    		switch(requestCode) {
+    		case REQ_CODE_TABLE_ID:
+    			String tableId = data.getStringExtra("tableId");
+    			Log.d("hz", tableId);
+    			break;
+    		default:
+    			Log.d("hz", "requestCode: "+ requestCode);
+    		}
+    		
+    		
     	}
     }
 

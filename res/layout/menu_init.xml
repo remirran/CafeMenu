@@ -2,20 +2,103 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="1">
         <TextView 
+            android:id="@+id/init_questions" 
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"
+            android:textSize="40sp"
+            android:text="@string/init_question"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <TextView 
+            android:id="@+id/init_result" 
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:textSize="40sp"
+            android:textColor="#000000"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/table_img_round_corners"/>
+    </LinearLayout>
+    <LinearLayout 
+	    android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        	<Button
+        	    android:id="@+id/init_button7" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_7"/>
+        	<Button
+        	    android:id="@+id/init_button8" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_8"/>
+        	<Button
+        	    android:id="@+id/init_button9" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_9"/>
+	</LinearLayout>
+	
 	<LinearLayout 
 	    android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        	<Button
+        	    android:id="@+id/init_button4" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_4"/>
+        	<Button
+        	    android:id="@+id/init_button5" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_5"/>
+        	<Button
+        	    android:id="@+id/init_button6" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_6"/>
+	</LinearLayout>
+	<LinearLayout 
+	    android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
         	<Button
         	    android:id="@+id/init_button1" 
-        	    android:layout_width="wrap_content"
-        	    android:layout_height="wrap_content"/>
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_1"/>
+        	<Button
+        	    android:id="@+id/init_button2" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_2"/>
+        	<Button
+        	    android:id="@+id/init_button3" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_3"/>
 	</LinearLayout>
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1">
+        <Button
+        	    android:id="@+id/init_button0" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/init_button_0"/>
+        <Button
+        	    android:id="@+id/init_enter" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/button_enter_str"/>
+        <Button
+        	    android:id="@+id/init_clear" 
+        	    style="@style/DigitalMenu.Init.DigitButton"
+        	    android:text="@string/button_clear_str"/>
+    </LinearLayout>
 </LinearLayout>
