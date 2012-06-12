@@ -1,8 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:gravity="top"
     android:orientation="horizontal" >
-    
 
-</LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/title_adv_img1"
+        style="@style/DigitalMenu.Title.AdvImageView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/table_img_round_corners"
+        android:contentDescription="@string/title_adv_img_text" />
+
+    <ImageView
+        android:id="@+id/title_adv_img3"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        style="@style/DigitalMenu.Title.AdvImageView"
+        android:background="@drawable/table_img_round_corners"
+        android:contentDescription="@string/title_adv_img_text" />
+
+    <ImageView
+        android:id="@+id/title_adv_img4"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        style="@style/DigitalMenu.Title.AdvImageView"
+        android:background="@drawable/table_img_round_corners"
+        android:contentDescription="@string/title_adv_img_text" />
+
+    <ImageView
+        android:id="@+id/title_adv_img2"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        style="@style/DigitalMenu.Title.AdvImageView"
+        android:background="@drawable/table_img_round_corners"
+        android:contentDescription="@string/title_adv_img_text" />
+    
+	<TextView
+        android:id="@+id/title_enter_button"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:textColor="#ffffff"
+        android:background="@drawable/enter_text_background"
+        android:text="@string/title_img_entrance" />
+
+</RelativeLayout>

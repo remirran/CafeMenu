@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style parent="@android:style/Theme.NoTitleBar" name="DigitalMenu"></style>
+    <style parent="@android:style/Theme.NoTitleBar.Fullscreen" name="DigitalMenu"></style>
     <style parent="@android:style/Widget.Holo.Button" name="DigitalMenu.Main.TitleButton">
         <item name="android:layout_weight">1</item>
         <item name="android:layout_width">0dp</item>
@@ -23,6 +23,10 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:onClick">buttonOnClick</item>
         <item name="android:textSize">40sp</item>
+    </style>
+    <style name="DigitalMenu.Title.AdvImageView" parent="@android:style/Widget.Holo">
+        <item name="android:layout_width">266dp</item>
+        <item name="android:layout_height">159dp</item>
     </style>
     
 </resources>

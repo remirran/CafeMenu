@@ -57,6 +57,11 @@ public class CafeMenuActivity extends Activity {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        /* Show adv window */
+        /* TODO: move init screen there */
+        Intent tAdvScreen = new Intent(this, TitleScreenActivity.class);
+        startActivity(tAdvScreen);
+        
         /* Init with the table number */
         /* TODO: skip this in locked state */
         Intent tInitScreen = new Intent(this,InitScreenActivity.class);

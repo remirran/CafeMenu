@@ -19,4 +19,7 @@
     <string name="init_button_8">8</string>
     <string name="init_button_9">9</string>
     <string name="init_question">Введите номер стола</string>
+    
+    <string name="title_adv_img_text">Место для рекламы</string>
+    <string name="title_img_entrance">Вход</string>
 </resources>
