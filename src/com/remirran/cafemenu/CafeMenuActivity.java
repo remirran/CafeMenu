@@ -2,8 +2,9 @@ package com.remirran.cafemenu;
 
 import java.util.Arrays;
 
+import com.remirran.cafemenu.data.FileCache;
+
 import android.app.Activity;
-import android.app.DownloadManager.Request;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -28,7 +29,7 @@ public class CafeMenuActivity extends Activity {
 	/* Constants */
 	private final int REQ_CODE_TABLE_ID = 1;
 	/* Tools */
-	private final ImgCache ic = new ImgCache();
+	private final FileCache ic = new FileCache();
 	private LayoutInflater ltInflatter;
 	/*Stubs*/
 	private final String title_buttons[] = {"Европейская кухня", "Кавказская кухня", "Японская кухня", "Бакалея"}; 

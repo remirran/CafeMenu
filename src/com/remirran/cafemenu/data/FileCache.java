@@ -1,4 +1,4 @@
-package com.remirran.cafemenu;
+package com.remirran.cafemenu.data;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +17,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
-public class ImgCache {
+public class FileCache {
 	private Vector<ImageView> downloaded = new Vector<ImageView>();
 	
 	public String md5 (String s) {
