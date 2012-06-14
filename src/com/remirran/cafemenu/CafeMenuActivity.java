@@ -65,8 +65,8 @@ public class CafeMenuActivity extends Activity {
         
         /* Init with the table number */
         /* TODO: skip this in locked state */
-        Intent tInitScreen = new Intent(this,InitScreenActivity.class);
-        startActivityForResult(tInitScreen, REQ_CODE_TABLE_ID);
+        //Intent tInitScreen = new Intent(this,InitScreenActivity.class);
+        //startActivityForResult(tInitScreen, REQ_CODE_TABLE_ID);
         
         ltInflatter = getLayoutInflater();
         

@@ -20,7 +20,7 @@ import android.widget.ImageView;
 public class FileCache {
 	private Vector<ImageView> downloaded = new Vector<ImageView>();
 	
-	public String md5 (String s) {
+	public static String md5 (String s) {
 		try {
 			MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
 			digest.update(s.getBytes());
