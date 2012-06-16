@@ -2,23 +2,69 @@ package com.remirran.cafemenu.data;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.Date;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.widget.ImageView;
 
 public class FileCache {
-	private Vector<ImageView> downloaded = new Vector<ImageView>();
+	public static final long CACHE_TIME = 31536000; /* One year */
+	private static Map<String, File> cacheIndex = Collections.synchronizedMap( new HashMap<String, File>() );
+	private File cacheFile;
+	private boolean isXml;
+	
+	public FileCache(File dir, String uri, boolean isMasterXml) throws FileNotFoundException, IOException {
+		cacheFile = getCacheFile(dir, uri);
+		isXml = isMasterXml;
+		if (!isCached() || isXml) {
+			fileSave(new URL(uri).openStream(), new FileOutputStream(cacheFile));
+		}
+		cacheIndex.put(uri, cacheFile);
+	}
+	/* TODO: Handle it somewhere */
+	public FileCache(String uri, ImageView iv) throws FileNotFoundException {
+		File cache = cacheIndex.get(uri);
+		Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cache));
+		iv.setImageBitmap(bm);
+	}
+	
+	public boolean isCached() throws IOException {
+		if (!cacheFile.exists()) {
+			cacheFile.createNewFile();
+			return false;
+		} else {
+			long time = new Date().getTime() / 1000;
+			long timeLastModified = cacheFile.lastModified() / 1000;
+			if ( timeLastModified + CACHE_TIME < time ) {
+				cacheFile.delete();
+				cacheFile.createNewFile();
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public static File getCacheFile(File dir, String uri) {
+		return new File(dir, md5(uri) + ".cache");
+	}
+	public boolean isXml() {
+		return isXml;
+	}
+	
+	public InputStream getInputStream() throws FileNotFoundException {
+		return new FileInputStream(cacheFile);
+	}
 	
 	public static String md5 (String s) {
 		try {
@@ -47,71 +93,10 @@ public class FileCache {
 		}
 	}
 	
-	public boolean findObject(ImageView object) {
-		for (int i = 0; i < downloaded.size(); i++) {
-			if (downloaded.elementAt(i).equals(object)) {
+	public boolean findObject(String object) {
+		if (cacheIndex.get(object) != null) {
 				return true;
-			}
 		}
 		return false;
 	}
-	
-	private Bitmap downloadImage(final Context context, final int cacheTime, final String uri, final ImageView iView){
-		Bitmap retval = null;
-		if (cacheTime != 0) {
-			File file = new File(context.getCacheDir(), md5(uri) + ".cache");
-			try {
-				File dir = new File(context.getCacheDir(), "");
-				if (!dir.exists()) {
-					dir.mkdirs();
-				}
-				if (file.exists()) {
-					long time = new Date().getTime() / 1000;
-					long timeLastModified = file.lastModified() / 1000;
-					if ( timeLastModified + cacheTime < time ) {
-						file.delete();
-						file.createNewFile();
-						fileSave(new URL(uri).openStream(), new FileOutputStream(file));
-					}
-				} else {
-					file.createNewFile();
-					fileSave(new URL(uri).openStream(), new FileOutputStream(file));
-				}
-				retval = BitmapFactory.decodeStream(new FileInputStream(file));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			if (retval == null ) {
-				file.delete();
-			}
-		} else {
-			try {
-				retval = BitmapFactory.decodeStream(new URL(uri).openStream());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return retval;
-	}
-	
-	public void fetchImage(final Context context, final int cacheTime, final String uri, final ImageView iView) {
-		if (iView != null) {
-			if (findObject(iView)) {
-				return;
-			}
-			downloaded.add(iView);
-		}
-		new AsyncTask<String, Void, Bitmap>() {
-			protected Bitmap doInBackground(String...url){
-				return downloadImage(context, cacheTime, url[0], iView);
-			}
-			protected void onPostExecute(Bitmap result){
-				super.onPostExecute(result);
-				if (iView != null) {
-					iView.setImageBitmap(result);
-				}
-			}
-		}.execute(new String[] {uri});
-	}
-
 }

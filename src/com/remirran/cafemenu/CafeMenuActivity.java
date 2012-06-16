@@ -1,9 +1,6 @@
 package com.remirran.cafemenu;
 
-import java.util.Arrays;
-
-import com.remirran.cafemenu.data.FileCache;
-
+import com.remirran.cafemenu.data.Downloader;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -29,7 +26,7 @@ public class CafeMenuActivity extends Activity {
 	/* Constants */
 	private final int REQ_CODE_TABLE_ID = 1;
 	/* Tools */
-	private final FileCache ic = new FileCache();
+	private Downloader dl;
 	private LayoutInflater ltInflatter;
 	/*Stubs*/
 	private final String title_buttons[] = {"Европейская кухня", "Кавказская кухня", "Японская кухня", "Бакалея"}; 
@@ -57,7 +54,7 @@ public class CafeMenuActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+        dl = new Downloader(this);
         /* Show adv window */
         /* TODO: move init screen there */
         Intent tAdvScreen = new Intent(this, TitleScreenActivity.class);
@@ -69,6 +66,7 @@ public class CafeMenuActivity extends Activity {
         //startActivityForResult(tInitScreen, REQ_CODE_TABLE_ID);
         
         ltInflatter = getLayoutInflater();
+        
         
         /* Fill titles*/
         LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
@@ -101,7 +99,7 @@ public class CafeMenuActivity extends Activity {
                 for (int i = 0; i < dishes.length; i++ ) {
                 	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
                 	ImageView tImg = (ImageView) tView.findViewById(R.id.main_table_img);
-                	ic.fetchImage(CafeMenuActivity.this, 3600, dishes[i][1], tImg);
+                	//ic.fetchImage(CafeMenuActivity.this, 3600, dishes[i][1], tImg);
                 	tImg.setContentDescription(dishes[i][0]);
                 	tTableRows[i%2].addView(tView);
                 }
@@ -120,9 +118,9 @@ public class CafeMenuActivity extends Activity {
     	System.gc();
     	
         View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
-        ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
-        int index = Arrays.asList(title_buttons).indexOf(((Button) v).getText());
-        ic.fetchImage(this, 3600, splashes[index], tImgView);
+        //ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
+        //int index = Arrays.asList(title_buttons).indexOf(((Button) v).getText());
+        //ic.fetchImage(this, 3600, splashes[index], tImgView);
         tTableLayout.addView(tView);
     }
     

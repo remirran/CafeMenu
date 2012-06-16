@@ -1,6 +1,7 @@
 package com.remirran.cafemenu.data;
 
 public class Section {
-	private int tId;
+	private String tId;
+	private String tParentId;
 	private String tName;
 }
