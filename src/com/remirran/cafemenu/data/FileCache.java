@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.FileNameMap;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -33,10 +35,9 @@ public class FileCache {
 	private File cacheFile;
 	private boolean isXml;
 	
-	public FileCache(File dir, String uri, boolean isMasterXml) throws FileNotFoundException, IOException {
+	public FileCache(File dir, String uri, boolean update) throws FileNotFoundException, IOException {
 		cacheFile = getCacheFile(dir, uri);
-		isXml = isMasterXml;
-		if (!isCached() || isXml) {
+		if (!isCached() || update) {
 			/* TODO: rewrite */
 			fileSave(new URL(uri).openStream(), new FileOutputStream(cacheFile));
 			final HttpClient client = AndroidHttpClient.newInstance("Android");
@@ -47,6 +48,7 @@ public class FileCache {
 				if (status != HttpStatus.SC_OK) {
 					/* TODO handle it somehow */
 				}
+				//isXml = response.getHeaders("Content-Type").toString().contains("text/xml");
 				final HttpEntity entity = response.getEntity();
 				try {
 					entity.writeTo(new FileOutputStream(cacheFile));
@@ -68,7 +70,9 @@ public class FileCache {
 				}
 			}
 		}
-
+		FileNameMap fnm = URLConnection.getFileNameMap();
+		isXml = fnm.getContentTypeFor(cacheFile.getAbsolutePath()).contains("text/xml");
+		
 		synchronized (cacheIndex) {
 			cacheIndex.put(uri, cacheFile);
 			if (delayed.containsKey(uri)) {

@@ -15,16 +15,12 @@ import android.util.Log;
 
 import com.remirran.cafemenu.R;
 
-public class Downloader {
+public class Downloader extends AsyncTask<String, Void, Void>{
 	private static final String LOG_TAG="Downloader";
-	private static String XML_URI;
-	private static File cacheDir;
-	private static final ArrayDeque<String> queue = new ArrayDeque<String>();
+	private DlCallbacks listener;
 
-	public Downloader(Context context) {
-		XML_URI = context.getString(R.string.xml_uri);
-		cacheDir = context.getCacheDir();
-		getAllData();		
+	public Downloader(DlCallbacks listener) {
+		this.listener = listener;
 	}
 	
 	private void getAllData(){
@@ -76,48 +72,10 @@ public class Downloader {
 		}
 		return true;
 	}
-	
-	private void parseXML(InputStream is) throws XmlPullParserException, IOException {
-		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-		XmlPullParser parser = factory.newPullParser();
-		
-		ExtData data = new ExtData();
-		String currentTag = "";
-		String newUri;
-		
-		parser.setInput(is, null);
-		while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
-			switch(parser.getEventType()) {
-			case XmlPullParser.START_TAG:
-				currentTag = parser.getName();
-				if (currentTag.toLowerCase().equals("adv")) {
-					data.setState(ExtData.STATE_ADV);
-					for (int i = 0; i < parser.getAttributeCount(); i++) {
-						Log.d(LOG_TAG, parser.getAttributeName(i) + " " + parser.getAttributeValue(i) );
-						if (parser.getAttributeName(i).toLowerCase().equals("url")) {
-							newUri = data.setPair(currentTag, parser.getAttributeValue(i));
-							if (newUri != null) {
-								queue.add(newUri);
-							}
-						}
-					}
-				} else if (currentTag.toLowerCase().equals("dategeneration")) {
-					data.setState(ExtData.STATE_UPDATE);
-				}
-				break;
-			case XmlPullParser.END_TAG:
-				data.commit();
-				break;
-			case XmlPullParser.TEXT:
-				newUri = data.setPair(currentTag, parser.getText());
-				if (newUri != null) {
-					queue.add(newUri);
-				}
-				break;
-			default:
-				break;
-			}
-			parser.next();
-		}	
+
+	@Override
+	protected Void doInBackground(String... params) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

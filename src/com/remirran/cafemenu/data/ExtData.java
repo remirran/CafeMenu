@@ -1,12 +1,23 @@
 package com.remirran.cafemenu.data;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import com.remirran.cafemenu.R;
+
+import android.content.Context;
+import android.util.Log;
 import android.widget.ImageView;
 
-public class ExtData {
+public class ExtData implements DlCallbacks {
 	public static final int STATE_NONE		= 0;
 	public static final int STATE_UPDATE	= 1;
 	public static final int STATE_ADV		= 2;
@@ -14,6 +25,10 @@ public class ExtData {
 	public static final int STATE_DISH		= 4;
 	public static final int STATE_COMMAND	= 5;
 	public static final int STATE_LAST		= 5;
+	
+	private static String XML_URI;
+	private static File cacheDir;
+	private static final String LOG_TAG = "ExtData";
 	
 	private static String lastUpdate;
 	private static String advUri;
@@ -25,7 +40,9 @@ public class ExtData {
 	
 	private int state;
 	
-	public ExtData() {
+	public ExtData(Context context) {
+		XML_URI = context.getString(R.string.xml_uri);
+		cacheDir = context.getCacheDir();
 		state = STATE_NONE;
 		lastUpdate = "";
 		advUri = "";
@@ -79,5 +96,48 @@ public class ExtData {
 
 		}
 
+	}
+	
+	private void parseXML(InputStream is) throws XmlPullParserException, IOException {
+		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+		XmlPullParser parser = factory.newPullParser();
+		
+		String currentTag = "";
+		String newUri;
+		
+		parser.setInput(is, null);
+		while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
+			switch(parser.getEventType()) {
+			case XmlPullParser.START_TAG:
+				currentTag = parser.getName();
+				if (currentTag.toLowerCase().equals("adv")) {
+					setState(STATE_ADV);
+					for (int i = 0; i < parser.getAttributeCount(); i++) {
+						Log.d(LOG_TAG, parser.getAttributeName(i) + " " + parser.getAttributeValue(i) );
+						if (parser.getAttributeName(i).toLowerCase().equals("url")) {
+							newUri = setPair(currentTag, parser.getAttributeValue(i));
+							if (newUri != null) {
+								queue.add(newUri);
+							}
+						}
+					}
+				} else if (currentTag.toLowerCase().equals("dategeneration")) {
+					setState(STATE_UPDATE);
+				}
+				break;
+			case XmlPullParser.END_TAG:
+				commit();
+				break;
+			case XmlPullParser.TEXT:
+				newUri = setPair(currentTag, parser.getText());
+				if (newUri != null) {
+					queue.add(newUri);
+				}
+				break;
+			default:
+				break;
+			}
+			parser.next();
+		}	
 	}
 }

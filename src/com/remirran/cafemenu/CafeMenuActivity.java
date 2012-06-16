@@ -1,6 +1,8 @@
 package com.remirran.cafemenu;
 
 import com.remirran.cafemenu.data.Downloader;
+import com.remirran.cafemenu.data.ExtData;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,7 +28,7 @@ public class CafeMenuActivity extends Activity {
 	/* Constants */
 	private final int REQ_CODE_TABLE_ID = 1;
 	/* Tools */
-	private Downloader dl;
+	private ExtData eData;
 	private LayoutInflater ltInflatter;
 	/*Stubs*/
 	private final String title_buttons[] = {"Европейская кухня", "Кавказская кухня", "Японская кухня", "Бакалея"}; 
@@ -54,7 +56,7 @@ public class CafeMenuActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        dl = new Downloader(this);
+        eData = new ExtData(this);
         /* Show adv window */
         /* TODO: move init screen there */
         Intent tAdvScreen = new Intent(this, TitleScreenActivity.class);
@@ -146,6 +148,7 @@ public class CafeMenuActivity extends Activity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	super.onActivityResult(requestCode, resultCode, data);
     	if (data == null) {
     		return;
     	}
