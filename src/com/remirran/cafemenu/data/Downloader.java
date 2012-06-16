@@ -1,6 +1,7 @@
 package com.remirran.cafemenu.data;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
@@ -10,9 +11,12 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
+
 import com.remirran.cafemenu.R;
 
 public class Downloader {
+	private static final String LOG_TAG="Downloader";
 	private static String XML_URI;
 	private static File cacheDir;
 	private static final ArrayDeque<String> queue = new ArrayDeque<String>();
@@ -20,13 +24,29 @@ public class Downloader {
 	public Downloader(Context context) {
 		XML_URI = context.getString(R.string.xml_uri);
 		cacheDir = context.getCacheDir();
-		queue.add(XML_URI);
-		getAllData();
+		getAllData();		
 	}
 	
 	private void getAllData(){
 		new AsyncTask<Void, Void, Void>() {
 			protected Void doInBackground(Void...params) {
+				/*Read the Master XML*/
+				try {
+					FileCache cache = new FileCache(cacheDir, XML_URI, false);
+					parseXML(cache.getInputStream());
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (XmlPullParserException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				/*Update the master XML*/
+				queue.add(XML_URI);
 				fetch();
 				return null;
 			};
@@ -66,31 +86,38 @@ public class Downloader {
 		String newUri;
 		
 		parser.setInput(is, null);
-		synchronized (ExtData.lockObject) {
-			while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
-				switch(parser.getEventType()) {
-				case XmlPullParser.START_TAG:
-					currentTag = parser.getName();
-					if (currentTag.toLowerCase().equals("adv")) {
-						data.setState(ExtData.STATE_ADV);
-					} else if (currentTag.toLowerCase().equals("dategeneration")) {
-						data.setState(ExtData.STATE_UPDATE);
+		while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
+			switch(parser.getEventType()) {
+			case XmlPullParser.START_TAG:
+				currentTag = parser.getName();
+				if (currentTag.toLowerCase().equals("adv")) {
+					data.setState(ExtData.STATE_ADV);
+					for (int i = 0; i < parser.getAttributeCount(); i++) {
+						Log.d(LOG_TAG, parser.getAttributeName(i) + " " + parser.getAttributeValue(i) );
+						if (parser.getAttributeName(i).toLowerCase().equals("url")) {
+							newUri = data.setPair(currentTag, parser.getAttributeValue(i));
+							if (newUri != null) {
+								queue.add(newUri);
+							}
+						}
 					}
-					break;
-				case XmlPullParser.END_TAG:
-					data.commit();
-					break;
-				case XmlPullParser.TEXT:
-					newUri = data.setPair(currentTag, parser.getText());
-					if (newUri != null) {
-						queue.add(newUri);
-					}
-					break;
-				default:
-					break;
+				} else if (currentTag.toLowerCase().equals("dategeneration")) {
+					data.setState(ExtData.STATE_UPDATE);
 				}
-				parser.next();
+				break;
+			case XmlPullParser.END_TAG:
+				data.commit();
+				break;
+			case XmlPullParser.TEXT:
+				newUri = data.setPair(currentTag, parser.getText());
+				if (newUri != null) {
+					queue.add(newUri);
+				}
+				break;
+			default:
+				break;
 			}
-		}
+			parser.next();
+		}	
 	}
 }

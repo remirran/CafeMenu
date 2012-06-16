@@ -1,7 +1,10 @@
 package com.remirran.cafemenu.data;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Vector;
+
+import android.widget.ImageView;
 
 public class ExtData {
 	public static final int STATE_NONE		= 0;
@@ -18,14 +21,14 @@ public class ExtData {
 	private static final HashMap<String, Vector<Section>> subs = new HashMap<String, Vector<Section>>();
 	private static final HashMap<String, Vector<Dish>> dishes = new HashMap<String, Vector<Dish>>();
 	
-	static class TheLock extends Object {
-	}
-	public static TheLock lockObject = new TheLock();
+	private static final HashMap<Integer, ImageView> delayed = new HashMap<Integer, ImageView>();
 	
 	private int state;
 	
 	public ExtData() {
 		state = STATE_NONE;
+		lastUpdate = "";
+		advUri = "";
 	}
 	
 	public void setState(int stateNew) {
@@ -36,12 +39,23 @@ public class ExtData {
 	}
 	
 	/* Return URI if it is passed as value, otherwise null */
-	public String setPair(String key, String value) {
+	public String setPair(String key, String value) throws IndexOutOfBoundsException {
 		switch (state) {
 		case STATE_NONE: 
 			break;
 		case STATE_ADV:
-			advUri = value;
+			synchronized (delayed) {
+				advUri = value;
+				if (delayed.containsKey(state)) {
+					try {
+						FileCache.fillImageFromCache(advUri, delayed.get(state));
+						delayed.remove(state);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 			return value;
 		case STATE_UPDATE:
 			break;
@@ -55,9 +69,15 @@ public class ExtData {
 		state = STATE_NONE;
 	}
 	
-	public static String getAdv() {
-		synchronized (ExtData.lockObject) {
-			return advUri;
+	public static void fillAdv(ImageView iv) {
+		synchronized (delayed) {		
+			try {
+				FileCache.fillImageFromCache(advUri, iv);
+			} catch (FileNotFoundException e) {
+				delayed.put(STATE_ADV, iv);
+			}
+
 		}
+
 	}
 }

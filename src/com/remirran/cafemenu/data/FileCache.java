@@ -9,18 +9,27 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.http.AndroidHttpClient;
+import android.util.Log;
 import android.widget.ImageView;
 
 public class FileCache {
+	private static final String LOG_TAG = "FileCache"; 
 	public static final long CACHE_TIME = 31536000; /* One year */
-	private static Map<String, File> cacheIndex = Collections.synchronizedMap( new HashMap<String, File>() );
+	private static HashMap<String, File> cacheIndex = new HashMap<String, File>();
+	private static HashMap<String, ImageView> delayed = new HashMap<String, ImageView>();
 	private File cacheFile;
 	private boolean isXml;
 	
@@ -28,15 +37,62 @@ public class FileCache {
 		cacheFile = getCacheFile(dir, uri);
 		isXml = isMasterXml;
 		if (!isCached() || isXml) {
+			/* TODO: rewrite */
 			fileSave(new URL(uri).openStream(), new FileOutputStream(cacheFile));
+			final HttpClient client = AndroidHttpClient.newInstance("Android");
+			final HttpUriRequest getRequest = new HttpGet(uri);
+			try {
+				HttpResponse response = client.execute(getRequest);
+				final int status = response.getStatusLine().getStatusCode();
+				if (status != HttpStatus.SC_OK) {
+					/* TODO handle it somehow */
+				}
+				final HttpEntity entity = response.getEntity();
+				try {
+					entity.writeTo(new FileOutputStream(cacheFile));
+				} finally {
+					entity.consumeContent();
+				}
+			} catch (IOException e) {
+				getRequest.abort();
+				Log.w(LOG_TAG, "I/O error: url="+uri, e);
+			} catch (IllegalStateException e) {
+				getRequest.abort();
+				Log.w(LOG_TAG, "Incorrect URI: "+uri, e);
+			} catch (Exception e) {
+				getRequest.abort();
+				Log.w(LOG_TAG, "Exception during: " + uri, e);
+			} finally {
+				if ((client instanceof AndroidHttpClient)) {
+					((AndroidHttpClient) client).close();
+				}
+			}
 		}
-		cacheIndex.put(uri, cacheFile);
+
+		synchronized (cacheIndex) {
+			cacheIndex.put(uri, cacheFile);
+			if (delayed.containsKey(uri)) {
+				Bitmap bm = BitmapFactory.decodeStream(getInputStream());
+				delayed.get(uri).setImageBitmap(bm);
+				delayed.remove(uri);
+			}
+		}
 	}
 	/* TODO: Handle it somewhere */
-	public FileCache(String uri, ImageView iv) throws FileNotFoundException {
-		File cache = cacheIndex.get(uri);
-		Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cache));
-		iv.setImageBitmap(bm);
+	public static void fillImageFromCache(String uri, ImageView iv) throws FileNotFoundException {
+		if (uri == null || uri.isEmpty()) {
+			throw new FileNotFoundException("Empty URI string");
+		}
+		synchronized (cacheIndex) {
+			File cache = cacheIndex.get(uri);
+			if (cache == null) {
+				/* TODO: change it to weak reference */
+				delayed.put(uri, iv);
+			} else {
+				Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cache));
+				iv.setImageBitmap(bm);
+			}
+		}
 	}
 	
 	public boolean isCached() throws IOException {
@@ -94,8 +150,10 @@ public class FileCache {
 	}
 	
 	public boolean findObject(String object) {
-		if (cacheIndex.get(object) != null) {
+		synchronized (cacheIndex) {
+			if (cacheIndex.get(object) != null) {
 				return true;
+			}
 		}
 		return false;
 	}
