@@ -6,9 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.FileNameMap;
-import java.net.URL;
-import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -31,15 +28,15 @@ public class FileCache {
 	private static final String LOG_TAG = "FileCache"; 
 	public static final long CACHE_TIME = 31536000; /* One year */
 	private static HashMap<String, File> cacheIndex = new HashMap<String, File>();
-	private static HashMap<String, ImageView> delayed = new HashMap<String, ImageView>();
+	private String uri;
 	private File cacheFile;
 	private boolean isXml;
 	
-	public FileCache(File dir, String uri, boolean update) throws FileNotFoundException, IOException {
-		cacheFile = getCacheFile(dir, uri);
+	public FileCache(String uri, boolean update) throws FileNotFoundException, IOException {
+		this.uri = uri;
+		isXml = uri.endsWith("xml") || uri.endsWith("html");
+		cacheFile = getCacheFile(ExtData.CACHE_DIR, uri);
 		if (!isCached() || update) {
-			/* TODO: rewrite */
-			fileSave(new URL(uri).openStream(), new FileOutputStream(cacheFile));
 			final HttpClient client = AndroidHttpClient.newInstance("Android");
 			final HttpUriRequest getRequest = new HttpGet(uri);
 			try {
@@ -70,16 +67,9 @@ public class FileCache {
 				}
 			}
 		}
-		FileNameMap fnm = URLConnection.getFileNameMap();
-		isXml = fnm.getContentTypeFor(cacheFile.getAbsolutePath()).contains("text/xml");
 		
 		synchronized (cacheIndex) {
 			cacheIndex.put(uri, cacheFile);
-			if (delayed.containsKey(uri)) {
-				Bitmap bm = BitmapFactory.decodeStream(getInputStream());
-				delayed.get(uri).setImageBitmap(bm);
-				delayed.remove(uri);
-			}
 		}
 	}
 	/* TODO: Handle it somewhere */
@@ -87,15 +77,22 @@ public class FileCache {
 		if (uri == null || uri.isEmpty()) {
 			throw new FileNotFoundException("Empty URI string");
 		}
+		if (iv == null) {
+			throw new FileNotFoundException("ImageView is null");
+		}
 		synchronized (cacheIndex) {
-			File cache = cacheIndex.get(uri);
-			if (cache == null) {
-				/* TODO: change it to weak reference */
-				delayed.put(uri, iv);
-			} else {
-				Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cache));
-				iv.setImageBitmap(bm);
-			}
+			Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cacheIndex.get(uri)));
+			iv.setImageBitmap(bm);
+		}
+	}
+	
+	public void fillImageFromCache(ImageView iv) {
+		Bitmap bm;
+		try {
+			bm = BitmapFactory.decodeStream(getInputStream());
+			iv.setImageBitmap(bm);
+		} catch (FileNotFoundException e) {
+			Log.w(LOG_TAG, "File not found: ", e);
 		}
 	}
 	
@@ -120,6 +117,10 @@ public class FileCache {
 	}
 	public boolean isXml() {
 		return isXml;
+	}
+	
+	public String getUri() {
+		return uri;
 	}
 	
 	public InputStream getInputStream() throws FileNotFoundException {

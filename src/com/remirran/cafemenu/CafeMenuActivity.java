@@ -1,6 +1,5 @@
 package com.remirran.cafemenu;
 
-import com.remirran.cafemenu.data.Downloader;
 import com.remirran.cafemenu.data.ExtData;
 
 import android.app.Activity;
