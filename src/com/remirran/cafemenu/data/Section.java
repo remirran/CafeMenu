@@ -24,6 +24,6 @@ public class Section {
 		this.tCategoryId = categoryId;
 	}
 	public boolean isRootElement() {
-		return tCategoryId.isEmpty();
+		return (tCategoryId == null) || tCategoryId.isEmpty();
 	}
 }

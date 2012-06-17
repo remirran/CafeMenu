@@ -107,7 +107,7 @@ public class ExtData implements DlCallbacks {
 				currentObj.setId(value);
 			} else if (key.equals("parent")) {
 				currentObj.setCategoryId(value);
-			} else if (key.equals("section")) {
+			} else if (key.equals("category")) {
 				currentObj.setName(value);
 			}
 			break;
@@ -128,19 +128,24 @@ public class ExtData implements DlCallbacks {
 				}
 			} else {
 				synchronized (subs) {
-					Section root = getRootSectionbyId(currentObj.getId());
+					try {
+					Section root = getRootSectionbyId(currentObj.getCategoryId());
 					if (!subs.containsKey(root.getName())) {
 						subs.put(root.getName(), new Vector<Section>());
 					}
 					/* TODO: check duplicates */
 					subs.get(root.getName()).add(currentObj);
+					} catch (NullPointerException e) {
+						Log.w(LOG_TAG, "Can't add category: " + currentObj.getId(), e);
+					}
 				}
 			}
+		case STATE_ADV:
+			state = STATE_NONE;
 			break;
 		default:
 			break;
 		}
-		state = STATE_NONE;
 	}
 	
 	private Section getRootSectionbyId(String id) {
@@ -199,14 +204,12 @@ public class ExtData implements DlCallbacks {
 					
 				}
 				break;
-			case XmlPullParser.END_TAG:
-				commit();
-				break;
 			case XmlPullParser.TEXT:
 				newUri = setPair(currentTag, parser.getText());
 				if (newUri != null) {
 					new Downloader(this).execute(new String[] {newUri});
 				}
+				commit();
 				break;
 			default:
 				break;
