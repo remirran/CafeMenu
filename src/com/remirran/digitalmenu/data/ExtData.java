@@ -1,4 +1,4 @@
-package com.remirran.cafemenu.data;
+package com.remirran.digitalmenu.data;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,8 +14,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.remirran.cafemenu.R;
+import com.remirran.digitalmenu.CafeMenuActivity;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
@@ -32,6 +34,7 @@ public class ExtData implements DlCallbacks {
 	
 	public static String XML_URI;
 	public static File CACHE_DIR;
+	private static Context context;
 	
 	private static final String LOG_TAG = "ExtData";
 	
@@ -62,10 +65,29 @@ public class ExtData implements DlCallbacks {
 	
 	private int state;
 	
+	private static class Parser extends AsyncTask<FileCache, Void, Void> {
+		private DlCallbacks listener;
+		public Parser(DlCallbacks listener) {
+			this.listener = listener;
+		}
+		
+		@Override
+		protected Void doInBackground(FileCache... params) {
+			listener.doParseXML(params[0]);
+			return null;
+		}
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			listener.onXMLParsed();
+		}
+	}
+	
 	/* Methods */
 	public ExtData(Context context) {
 		XML_URI = context.getString(R.string.xml_uri);
 		CACHE_DIR = context.getCacheDir();
+		ExtData.context = context;
 		state = STATE_NONE;
 		/* Spawn a new task to update the structures */
 		new Downloader(this).execute(new String[] {XML_URI});
@@ -95,8 +117,11 @@ public class ExtData implements DlCallbacks {
 		case STATE_NONE: 
 			break;
 		case STATE_ADV:
-			advUri = value;
-			return value;
+			if (value.startsWith("http://")) {
+				advUri = value;
+				return value;
+			}
+			break;
 		case STATE_UPDATE:
 			lastUpdate = value;
 			break;
@@ -171,51 +196,62 @@ public class ExtData implements DlCallbacks {
 		}
 	}
 	
-	private void parseXML(InputStream is) throws XmlPullParserException, IOException {
-		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-		XmlPullParser parser = factory.newPullParser();
-		
-		String currentTag = "";
-		String newUri;
-		
-		parser.setInput(is, null);
-		while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
-			switch(parser.getEventType()) {
-			case XmlPullParser.START_TAG:
-				currentTag = parser.getName();
-				if (currentTag.toLowerCase().equals("adv")) {
-					setState(STATE_ADV);
-					for (int i = 0; i < parser.getAttributeCount(); i++) {
-						if (parser.getAttributeName(i).toLowerCase().equals("url")) {
-							newUri = setPair(currentTag, parser.getAttributeValue(i));
-							if (newUri != null) {
-									new Downloader(this).execute(new String[] {newUri});
-								}
+	@Override
+	public void doParseXML(FileCache cache) {
+		try {
+			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+			XmlPullParser parser = factory.newPullParser();
+			
+			String currentTag = "";
+			String newUri;
+			
+			parser.setInput(cache.getInputStream(), null);
+			while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
+				switch(parser.getEventType()) {
+				case XmlPullParser.START_TAG:
+					currentTag = parser.getName();
+					if (currentTag.toLowerCase().equals("adv")) {
+						setState(STATE_ADV);
+						for (int i = 0; i < parser.getAttributeCount(); i++) {
+							if (parser.getAttributeName(i).toLowerCase().equals("url")) {
+								newUri = setPair(currentTag, parser.getAttributeValue(i));
+								if (newUri != null) {
+										new Downloader(this).execute(new String[] {newUri});
+									}
+							}
 						}
+					} else if (currentTag.toLowerCase().equals("dategeneration")) {
+						setState(STATE_UPDATE);
+					} else if (currentTag.toLowerCase().equals("category")) {
+						setState(STATE_SECTION);
+						for (int i = 0; i < parser.getAttributeCount(); i++) {
+							setPair(parser.getAttributeName(i).toLowerCase(), parser.getAttributeValue(i));
+						}
+					} else if (currentTag.toLowerCase().equals("dish")) {
+						
 					}
-				} else if (currentTag.toLowerCase().equals("dategeneration")) {
-					setState(STATE_UPDATE);
-				} else if (currentTag.toLowerCase().equals("category")) {
-					setState(STATE_SECTION);
-					for (int i = 0; i < parser.getAttributeCount(); i++) {
-						setPair(parser.getAttributeName(i).toLowerCase(), parser.getAttributeValue(i));
+					break;
+				case XmlPullParser.END_TAG:
+					commit();
+					break;
+				case XmlPullParser.TEXT:
+					newUri = setPair(currentTag, parser.getText());
+					if (newUri != null) {
+						new Downloader(this).execute(new String[] {newUri});
 					}
-				} else if (currentTag.toLowerCase().equals("dish")) {
-					
+					break;
+				default:
+					break;
 				}
-				break;
-			case XmlPullParser.TEXT:
-				newUri = setPair(currentTag, parser.getText());
-				if (newUri != null) {
-					new Downloader(this).execute(new String[] {newUri});
-				}
-				commit();
-				break;
-			default:
-				break;
-			}
-			parser.next();
-		}	
+				parser.next();
+		}
+		} catch (XmlPullParserException e){
+			Log.w(LOG_TAG, "XML parsing problem", e);			
+		} catch (FileNotFoundException e) { 
+			Log.w(LOG_TAG, "FileNotFound", e);
+		} catch (IOException e) {
+			Log.w(LOG_TAG, "IO problem", e);
+		}
 	}
 	
 	private static void checkDelayed(FileCache cache) {
@@ -251,18 +287,23 @@ public class ExtData implements DlCallbacks {
 	@Override
 	public void onFileReceived(FileCache cache) {
 		if (cache.isXml()) {
-			try {
-				parseXML(cache.getInputStream());
-			} catch (FileNotFoundException e) {
-				Log.w(LOG_TAG, "File not found at: ", e);
-			} catch (XmlPullParserException e) {
-				Log.w(LOG_TAG, "XML can't be parsed: ", e);
-			} catch (IOException e) {
-				Log.w(LOG_TAG, "IO Error", e);
-			}
-		} else {
+			new Parser(this).execute(new FileCache[] {cache});
+			} else {
 			checkDelayed(cache);
 		}
 		
+	}
+
+	@Override
+	public void onXMLParsed() {
+		((CafeMenuActivity) context).applyDownloadedInfo();
+	}
+	
+	public Vector<Section> getSections() {
+		return sections;
+	}
+	
+	public Vector<Section> getSubs(String key) {
+		return subs.get(key);
 	}
 }

@@ -1,4 +1,6 @@
-package com.remirran.cafemenu;
+package com.remirran.digitalmenu;
+
+import com.remirran.cafemenu.R;
 
 import android.app.Activity;
 import android.os.Bundle;

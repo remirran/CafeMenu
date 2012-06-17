@@ -1,6 +1,13 @@
-package com.remirran.cafemenu;
+package com.remirran.digitalmenu;
 
-import com.remirran.cafemenu.data.ExtData;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import com.remirran.cafemenu.R;
+import com.remirran.digitalmenu.data.ExtData;
+import com.remirran.digitalmenu.data.Section;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,9 +35,8 @@ public class CafeMenuActivity extends Activity {
 	private final int REQ_CODE_TABLE_ID = 1;
 	/* Tools */
 	private ExtData eData;
-	private LayoutInflater ltInflatter;
+	private static LayoutInflater ltInflatter;
 	/*Stubs*/
-	private final String title_buttons[] = {"Европейская кухня", "Кавказская кухня", "Японская кухня", "Бакалея"}; 
 	private final String section_items[] = {"Холодные закуски", "Горячие закуски", "Салаты рыбные", "Салаты мясные", "Салаты овощные", "Первые блюда", "Вторые блюда", "Гарниры", "Закуски к пиву"};
 	private final String dishes[][] = {
 			{ "Филе сельди с картошкой", "http://edem.argroup52.ru/assets/images/europa/seld%20s%20kartoph.jpg", "90" },
@@ -69,19 +75,36 @@ public class CafeMenuActivity extends Activity {
         ltInflatter = getLayoutInflater();
         
         
+
+        
+        
+        
+        /* Init side menu with first section data */
+       // titleButtonOnClick(tTtlLayout.getChildAt(0));
+
+    }
+	
+	public void applyDownloadedInfo() {
         /* Fill titles*/
         LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
-        for (int i = 0; i < title_buttons.length; i++ ) {
-        	View tView = ltInflatter.inflate(R.layout.main_title_button, tTtlLayout, false);
-        	Button tButton = (Button) tView.findViewById(R.id.main_title_button);
-        	tButton.setText(title_buttons[i]);
-        	tTtlLayout.addView(tView);
-        }
+        Vector<Section> sects = eData.getSections();
+        synchronized (sects) {
+			Collections.sort(sects);
+			Iterator<Section> itr = sects.iterator();
+			while (itr.hasNext()) {
+				View tView = ltInflatter.inflate(R.layout.main_title_button, tTtlLayout, false);
+				Button tButton = (Button) tView.findViewById(R.id.main_title_button);
+				tButton.setText(itr.next().getName());
+				tTtlLayout.addView(tView);
+			}
+		}
         
         /* Fill items for 1st section */
         ListView tLstLayout = (ListView) findViewById(R.id.main_list_layout);
+        List<Section> subs = eData.getSubs(((Button)tTtlLayout.getChildAt(0)).getText().toString());
+        List<String> subsTitles = (List) subs;
         ArrayAdapter<String> tLstAdapter = new ArrayAdapter<String>(this,
-        		R.layout.main_section_item, section_items);
+        		R.layout.main_section_item, subsTitles);
         tLstLayout.setAdapter(tLstAdapter);
         
         tLstLayout.setOnItemClickListener(new OnItemClickListener() {
@@ -108,21 +131,26 @@ public class CafeMenuActivity extends Activity {
                 ((TextView) v).setBackgroundColor(Color.parseColor("#cccccc"));
             }
 		});
-        
-        /* Init side menu with first section data */
-        titleButtonOnClick(tTtlLayout.getChildAt(0));
-
-    }
+            
+	}
+	
     public void titleButtonOnClick(View v) {
-    	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
-    	unbindDrawables(tTableLayout);
-    	System.gc();
+    	//HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
+    	//unbindDrawables(tTableLayout);
+    	//System.gc();
     	
-        View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
+    	ListView tLstLayout = (ListView) findViewById(R.id.main_list_layout);
+        Vector<Section> subs = eData.getSubs(((Button)v).getText().toString());
+        List<String> subsTitles = (List) subs;
+        ArrayAdapter<String> tLstAdapter = new ArrayAdapter<String>(this,
+        		R.layout.main_section_item, subsTitles);
+        tLstLayout.setAdapter(tLstAdapter);
+    	
+        //View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
         //ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
         //int index = Arrays.asList(title_buttons).indexOf(((Button) v).getText());
         //ic.fetchImage(this, 3600, splashes[index], tImgView);
-        tTableLayout.addView(tView);
+        //tTableLayout.addView(tView);
     }
     
     private void unbindDrawables (View v) {
@@ -160,8 +188,6 @@ public class CafeMenuActivity extends Activity {
     		default:
     			Log.d("hz", "requestCode: "+ requestCode);
     		}
-    		
-    		
     	}
     }
 

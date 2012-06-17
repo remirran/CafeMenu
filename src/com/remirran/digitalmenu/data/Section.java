@@ -1,6 +1,6 @@
-package com.remirran.cafemenu.data;
+package com.remirran.digitalmenu.data;
 
-public class Section {
+public class Section implements Comparable<Section>{
 	protected String tId;
 	protected String tName;
 	protected String tCategoryId;
@@ -25,5 +25,13 @@ public class Section {
 	}
 	public boolean isRootElement() {
 		return (tCategoryId == null) || tCategoryId.isEmpty();
+	}
+	@Override
+	public int compareTo(Section another) {
+		return this.tName.compareTo(another.tName);
+	}
+	@Override
+	public String toString() {
+		return tName;
 	}
 }

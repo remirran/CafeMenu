@@ -1,4 +1,4 @@
-package com.remirran.cafemenu.data;
+package com.remirran.digitalmenu.data;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

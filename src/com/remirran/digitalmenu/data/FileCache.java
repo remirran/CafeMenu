@@ -1,4 +1,4 @@
-package com.remirran.cafemenu.data;
+package com.remirran.digitalmenu.data;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,8 +37,8 @@ public class FileCache {
 		isXml = uri.endsWith("xml") || uri.endsWith("html");
 		cacheFile = getCacheFile(ExtData.CACHE_DIR, uri);
 		if (!isCached() || update) {
-			final HttpClient client = AndroidHttpClient.newInstance("Android");
-			final HttpUriRequest getRequest = new HttpGet(uri);
+			HttpClient client = AndroidHttpClient.newInstance("Android");
+			HttpUriRequest getRequest = new HttpGet(uri);
 			try {
 				HttpResponse response = client.execute(getRequest);
 				final int status = response.getStatusLine().getStatusCode();
@@ -81,6 +81,7 @@ public class FileCache {
 			throw new FileNotFoundException("ImageView is null");
 		}
 		synchronized (cacheIndex) {
+			/*TODO nullpointerexception*/
 			Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cacheIndex.get(uri)));
 			iv.setImageBitmap(bm);
 		}
