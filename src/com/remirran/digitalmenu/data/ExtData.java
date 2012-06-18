@@ -3,7 +3,6 @@ package com.remirran.digitalmenu.data;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,8 +12,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import com.remirran.cafemenu.R;
 import com.remirran.digitalmenu.CafeMenuActivity;
+import com.remirran.digitalmenu.R;
 
 import android.content.Context;
 import android.os.AsyncTask;

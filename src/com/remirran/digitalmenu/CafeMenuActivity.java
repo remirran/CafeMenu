@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import com.remirran.cafemenu.R;
 import com.remirran.digitalmenu.data.ExtData;
 import com.remirran.digitalmenu.data.Section;
 
@@ -37,7 +36,6 @@ public class CafeMenuActivity extends Activity {
 	private ExtData eData;
 	private static LayoutInflater ltInflatter;
 	/*Stubs*/
-	private final String section_items[] = {"Холодные закуски", "Горячие закуски", "Салаты рыбные", "Салаты мясные", "Салаты овощные", "Первые блюда", "Вторые блюда", "Гарниры", "Закуски к пиву"};
 	private final String dishes[][] = {
 			{ "Филе сельди с картошкой", "http://edem.argroup52.ru/assets/images/europa/seld%20s%20kartoph.jpg", "90" },
 			{ "Язык отварной", "http://edem.argroup52.ru/assets/images/europa/2.jpg", "160" },

@@ -1,6 +1,5 @@
 package com.remirran.digitalmenu;
 
-import com.remirran.cafemenu.R;
 import com.remirran.digitalmenu.data.ExtData;
 
 import android.app.Activity;
