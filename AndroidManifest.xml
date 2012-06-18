@@ -21,7 +21,7 @@
         </activity>
         <activity android:name=".InitScreenActivity" android:screenOrientation="sensorLandscape"></activity>
         <activity android:name=".OrderActivity" android:screenOrientation="sensorLandscape"></activity>
-        <activity android:screenOrientation="sensorLandscape" android:name=".TitleScreenActivityenu.TitleScreenActivity"></activity>
+        <activity android:screenOrientation="sensorLandscape" android:name=".TitleScreenActivity"></activity>
     </application>
 
 </manifest>

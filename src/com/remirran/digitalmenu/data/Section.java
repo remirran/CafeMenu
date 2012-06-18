@@ -1,9 +1,10 @@
 package com.remirran.digitalmenu.data;
 
 public class Section implements Comparable<Section>{
-	protected String tId;
-	protected String tName;
-	protected String tCategoryId;
+	private String tId;
+	private String tName;
+	private String tCategoryId;
+	private String tImgUri;
 	
 	public String getId() {
 		return tId;
@@ -25,6 +26,12 @@ public class Section implements Comparable<Section>{
 	}
 	public boolean isRootElement() {
 		return (tCategoryId == null) || tCategoryId.isEmpty();
+	}
+	public String getImgUri() {
+		return tImgUri;
+	}
+	public void setImgUri(String tImgUri) {
+		this.tImgUri = tImgUri;
 	}
 	@Override
 	public int compareTo(Section another) {

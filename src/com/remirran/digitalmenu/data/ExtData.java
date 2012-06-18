@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -38,11 +39,13 @@ public class ExtData implements DlCallbacks {
 	private static final String LOG_TAG = "ExtData";
 	
 	/* Members */
+	/*TODO check this flag before XML re-parsing*/
 	private static String lastUpdate;
 	private static String advUri;
 	private static final Vector<Section> sections = new Vector<Section>();
 	private static final HashMap<String, Vector<Section>> subs = new HashMap<String, Vector<Section>>();
 	private static final HashMap<String, Vector<Dish>> dishes = new HashMap<String, Vector<Dish>>();
+	private static final HashMap<String, String> flatSubs = new HashMap<String, String>();
 	
 	private Section currentObj;
 	
@@ -105,24 +108,37 @@ public class ExtData implements DlCallbacks {
 		case STATE_SECTION:
 			currentObj = new Section();
 			break;
+		case STATE_DISH:
+			currentObj = new Dish();
+			break;
 		default:
 			break;
 		}
 	}
 	
-	/* Return URI if it is passed as value, otherwise null */
-	public String setPair(String key, String value) throws IndexOutOfBoundsException {
+	public void setPair(String key, String value) throws IndexOutOfBoundsException {
+		if (value.isEmpty() || value.trim().isEmpty()) return;
 		switch (state) {
 		case STATE_NONE: 
 			break;
 		case STATE_ADV:
 			if (value.startsWith("http://")) {
 				advUri = value;
-				return value;
+				new Downloader(this).execute(new String[] {advUri});
 			}
 			break;
 		case STATE_UPDATE:
-			lastUpdate = value;
+			try {
+				int newTime = Integer.parseInt(value);
+				int oldTime = Integer.parseInt(lastUpdate);
+				if ( oldTime >= newTime) {
+					/*TODO: stop parsing here*/
+				}
+				lastUpdate = value;
+			} catch (NumberFormatException e) {
+				Log.d(LOG_TAG, "Date reading error, but this is ok ;-)");
+				lastUpdate = value;
+			}
 			break;
 		case STATE_COMMAND:
 			break;
@@ -131,16 +147,32 @@ public class ExtData implements DlCallbacks {
 				currentObj.setId(value);
 			} else if (key.equals("parent")) {
 				currentObj.setCategoryId(value);
+			} else if (key.equals("img") && value.trim().startsWith("http://")) {
+				currentObj.setImgUri(value.trim());
+				new Downloader(this).execute(new String[] {currentObj.getImgUri()});
 			} else if (key.equals("category")) {
 				currentObj.setName(value);
 			}
 			break;
 		case STATE_DISH:
+			if (key.equals("id")) {
+				currentObj.setId(value);
+			} else if (key.equals("available")) {
+				((Dish)currentObj).setAvailFlag(value.toLowerCase().equals("true"));
+			} else if (key.equals("categoryId")) {
+				currentObj.setCategoryId(value);
+			} else if (key.equals("price")) {
+				((Dish)currentObj).setPrice(value);
+			} else if (key.equals("name")) {
+				currentObj.setName(value);
+			} else if (key.equals("picture") && value.trim().startsWith("http://") ) {
+				currentObj.setImgUri(value.trim());
+				new Downloader(this).execute(new String[] {currentObj.getImgUri()});
+			}
 			break;
 		default: 
 			throw new IndexOutOfBoundsException("State is out of bounds");
 		}
-		return null;
 	}
 	
 	public void commit() {
@@ -149,25 +181,44 @@ public class ExtData implements DlCallbacks {
 			if (currentObj.isRootElement()) {
 				synchronized (sections) {
 					sections.add(currentObj);
+					flatSubs.put(currentObj.getId(), currentObj.getName());
 				}
 			} else {
 				synchronized (subs) {
 					try {
-					Section root = getRootSectionbyId(currentObj.getCategoryId());
-					if (!subs.containsKey(root.getName())) {
-						subs.put(root.getName(), new Vector<Section>());
-					}
-					/* TODO: check duplicates */
-					subs.get(root.getName()).add(currentObj);
+						Section root = getRootSectionbyId(currentObj.getCategoryId());
+						if (!subs.containsKey(root.getName())) {
+							subs.put(root.getName(), new Vector<Section>());
+						}
+						/* TODO: check duplicates */
+						subs.get(root.getName()).add(currentObj);
+						flatSubs.put(currentObj.getId(), currentObj.getName());
 					} catch (NullPointerException e) {
 						Log.w(LOG_TAG, "Can't add category: " + currentObj.getId(), e);
 					}
 				}
 			}
+			state = STATE_NONE;
+			break;
 		case STATE_ADV:
 			state = STATE_NONE;
 			break;
+		case STATE_DISH:
+			state = STATE_NONE;
+			synchronized (dishes) {
+				try {
+					String parentName = flatSubs.get(currentObj.getCategoryId());
+					if (!dishes.containsKey(parentName)) {
+						dishes.put(parentName, new Vector<Dish>());
+					}
+					dishes.get(parentName).add((Dish)currentObj);
+				} catch (NullPointerException e) {
+					Log.w(LOG_TAG, "Can't add dish: " + currentObj.getId(), e);
+				}
+			}
+			break;
 		default:
+			state = STATE_NONE;
 			break;
 		}
 	}
@@ -183,7 +234,7 @@ public class ExtData implements DlCallbacks {
 		return null;
 		
 	}
-	
+	/* TODO: combine fillAdv && fillImg */
 	public static void fillAdv(Handler hl, ImageView iv) {
 		synchronized (delayed) {		
 			try {
@@ -191,6 +242,19 @@ public class ExtData implements DlCallbacks {
 				FileCache.fillImageFromCache(advUri, iv);
 			} catch (FileNotFoundException e) {
 				delayed.put("adv", new ResourseRequest(hl,iv));
+			}
+		}
+	}
+	
+	public static void fillImg(String uri, Handler hl, ImageView iv) {
+		synchronized (delayed) {		
+			try {
+				/*TODO: probably this advUri is not thread-safe */
+				FileCache.fillImageFromCache(uri, iv);
+			} catch (FileNotFoundException e) {
+				delayed.put(uri, new ResourseRequest(hl,iv));
+			} catch (NullPointerException e) {
+				delayed.put(uri, new ResourseRequest(hl,iv));
 			}
 		}
 	}
@@ -213,10 +277,7 @@ public class ExtData implements DlCallbacks {
 						setState(STATE_ADV);
 						for (int i = 0; i < parser.getAttributeCount(); i++) {
 							if (parser.getAttributeName(i).toLowerCase().equals("url")) {
-								newUri = setPair(currentTag, parser.getAttributeValue(i));
-								if (newUri != null) {
-										new Downloader(this).execute(new String[] {newUri});
-									}
+								setPair(currentTag, parser.getAttributeValue(i));
 							}
 						}
 					} else if (currentTag.toLowerCase().equals("dategeneration")) {
@@ -227,17 +288,19 @@ public class ExtData implements DlCallbacks {
 							setPair(parser.getAttributeName(i).toLowerCase(), parser.getAttributeValue(i));
 						}
 					} else if (currentTag.toLowerCase().equals("dish")) {
-						
+						setState(STATE_DISH);
+						for (int i = 0; i < parser.getAttributeCount(); i++) {
+							setPair(parser.getAttributeName(i).toLowerCase(), parser.getAttributeValue(i));
+						}
 					}
 					break;
 				case XmlPullParser.END_TAG:
+					if (state == STATE_DISH && !parser.getName().equals("dish")) break;
+					currentTag = "";
 					commit();
 					break;
 				case XmlPullParser.TEXT:
-					newUri = setPair(currentTag, parser.getText());
-					if (newUri != null) {
-						new Downloader(this).execute(new String[] {newUri});
-					}
+					setPair(currentTag, parser.getText());
 					break;
 				default:
 					break;
@@ -300,6 +363,17 @@ public class ExtData implements DlCallbacks {
 	
 	public Vector<Section> getSections() {
 		return sections;
+	}
+	
+	public Section getSectionByName(String name) throws NoSuchElementException {
+		Iterator<Section> itr = sections.iterator();
+		synchronized (sections) {
+			while (itr.hasNext()) {
+				Section tmp = itr.next();
+				if (tmp.getName() == name) return tmp;
+			}
+		}
+		throw new NoSuchElementException("Can't find section: " + name);
 	}
 	
 	public Vector<Section> getSubs(String key) {

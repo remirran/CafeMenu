@@ -70,10 +70,11 @@ public class FileCache {
 		
 		synchronized (cacheIndex) {
 			cacheIndex.put(uri, cacheFile);
+			Log.d(LOG_TAG, "SAVED:" + uri + " = " + cacheFile.getName());
 		}
 	}
 	/* TODO: Handle it somewhere */
-	public static void fillImageFromCache(String uri, ImageView iv) throws FileNotFoundException {
+	public static void fillImageFromCache(String uri, ImageView iv) throws FileNotFoundException, NullPointerException {
 		if (uri == null || uri.isEmpty()) {
 			throw new FileNotFoundException("Empty URI string");
 		}
@@ -81,7 +82,7 @@ public class FileCache {
 			throw new FileNotFoundException("ImageView is null");
 		}
 		synchronized (cacheIndex) {
-			/*TODO nullpointerexception*/
+			Log.d(LOG_TAG, "REQ: "+uri + " = " + md5(uri));
 			Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cacheIndex.get(uri)));
 			iv.setImageBitmap(bm);
 		}
