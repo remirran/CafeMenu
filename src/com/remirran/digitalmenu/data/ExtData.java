@@ -266,7 +266,6 @@ public class ExtData implements DlCallbacks {
 			XmlPullParser parser = factory.newPullParser();
 			
 			String currentTag = "";
-			String newUri;
 			
 			parser.setInput(cache.getInputStream(), null);
 			while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
@@ -374,6 +373,10 @@ public class ExtData implements DlCallbacks {
 			}
 		}
 		throw new NoSuchElementException("Can't find section: " + name);
+	}
+	
+	public Vector<Dish> getDishesBySectionName(String name) {
+		return dishes.get(name);
 	}
 	
 	public Vector<Section> getSubs(String key) {

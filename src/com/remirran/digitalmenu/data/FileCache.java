@@ -6,6 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -32,14 +36,19 @@ public class FileCache {
 	private File cacheFile;
 	private boolean isXml;
 	
+	/*TODO: Handle disconnects through CONNECTIVITY_CHANGE: http://stackoverflow.com/questions/1783117/network-listener-android */
+	/*to create a request queue and check requests there in case of re-get anything*/
 	public FileCache(String uri, boolean update) throws FileNotFoundException, IOException {
 		this.uri = uri;
 		isXml = uri.endsWith("xml") || uri.endsWith("html");
 		cacheFile = getCacheFile(ExtData.CACHE_DIR, uri);
 		if (!isCached() || update) {
 			HttpClient client = AndroidHttpClient.newInstance("Android");
-			HttpUriRequest getRequest = new HttpGet(uri);
+			HttpUriRequest getRequest = null;
 			try {
+				URL url = new URL(uri);
+				URI safeURI = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+				getRequest = new HttpGet(safeURI);;
 				HttpResponse response = client.execute(getRequest);
 				final int status = response.getStatusLine().getStatusCode();
 				if (status != HttpStatus.SC_OK) {
@@ -52,26 +61,32 @@ public class FileCache {
 				} finally {
 					entity.consumeContent();
 				}
-			} catch (IOException e) {
-				getRequest.abort();
-				Log.w(LOG_TAG, "I/O error: url="+uri, e);
 			} catch (IllegalStateException e) {
 				getRequest.abort();
 				Log.w(LOG_TAG, "Incorrect URI: "+uri, e);
+			} catch (URISyntaxException e) {
+				Log.w(LOG_TAG, "Can't create uri: " + uri, e);
+			} catch (MalformedURLException e) {
+				Log.w(LOG_TAG, "Can't parse uri: " + uri, e);
+			} catch (IOException e) {
+				getRequest.abort();
+				Log.w(LOG_TAG, "I/O error: url="+uri, e);
 			} catch (Exception e) {
 				getRequest.abort();
 				Log.w(LOG_TAG, "Exception during: " + uri, e);
-			} finally {
+			}finally {
 				if ((client instanceof AndroidHttpClient)) {
 					((AndroidHttpClient) client).close();
 				}
 			}
+			synchronized (cacheIndex) {
+				if(!getRequest.isAborted()) {
+					cacheIndex.put(uri, cacheFile);
+					Log.d(LOG_TAG, "SAVED:" + uri + " = " + cacheFile.getName());
+				}
+			}
 		}
 		
-		synchronized (cacheIndex) {
-			cacheIndex.put(uri, cacheFile);
-			Log.d(LOG_TAG, "SAVED:" + uri + " = " + cacheFile.getName());
-		}
 	}
 	/* TODO: Handle it somewhere */
 	public static void fillImageFromCache(String uri, ImageView iv) throws FileNotFoundException, NullPointerException {
@@ -80,6 +95,13 @@ public class FileCache {
 		}
 		if (iv == null) {
 			throw new FileNotFoundException("ImageView is null");
+		}
+		if (cacheIndex.get(uri) == null) {
+			throw new FileNotFoundException("File is not in cache");
+		}
+		if (!cacheIndex.get(uri).exists()) {
+			/* TODO: force reload*/
+			throw new FileNotFoundException("File is not in cache");
 		}
 		synchronized (cacheIndex) {
 			Log.d(LOG_TAG, "REQ: "+uri + " = " + md5(uri));
@@ -110,6 +132,9 @@ public class FileCache {
 				cacheFile.createNewFile();
 				return false;
 			}
+		}
+		if (cacheIndex.get(uri) == null) {
+			cacheIndex.put(uri, cacheFile);
 		}
 		return true;
 	}
