@@ -123,6 +123,17 @@ public class CafeMenuActivity extends Activity {
 	}
 	
     public void titleButtonOnClick(View v) {
+        LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
+
+        ((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
+        ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.menu_button_common);
+        tTtlLayout.removeView(v);
+        ((Button)v).setTextColor(Color.parseColor("#000000"));
+        ((Button)v).setBackgroundResource(R.drawable.table_img_round_corners);
+        ((Button)v).setBackgroundResource(R.drawable.menu_button_active);
+        tTtlLayout.addView(v, 0);
+        tTtlLayout.requestLayout();
+    	
     	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
     	unbindDrawables(tTableLayout);
     	//System.gc();

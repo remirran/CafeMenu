@@ -4,7 +4,7 @@
     <string name="xml_uri">http://edem.argroup52.ru/yml.html</string>
     <string name="sample_section">Европейская кухня</string>
     <string name="sample_sub">Холодные закуски</string>
-    <string name="main_text_confirm">Заказать</string>
+    <string name="main_text_confirm">Ваш заказ</string>
     <string name="main_text_img_desc">No image</string>
     <string name="button_clear_str">Очистить</string>
     <string name="button_enter_str">Ввод</string>
