@@ -2,5 +2,7 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/DigitalMenu.Main.SectionItem"
     android:id="@+id/main_section_item"
+    android:background="@drawable/table_img_round_corners"
+    android:textColor="#000000"
     android:text="@string/sample_sub">
 </TextView>

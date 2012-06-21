@@ -34,6 +34,7 @@ public class ExtData implements DlCallbacks {
 	
 	public static String XML_URI;
 	public static File CACHE_DIR;
+	public static float DENSITY;
 	private static Context context;
 	
 	private static final String LOG_TAG = "ExtData";
@@ -89,6 +90,7 @@ public class ExtData implements DlCallbacks {
 	public ExtData(Context context) {
 		XML_URI = context.getString(R.string.xml_uri);
 		CACHE_DIR = context.getCacheDir();
+		DENSITY = context.getResources().getDisplayMetrics().density;
 		ExtData.context = context;
 		state = STATE_NONE;
 		/* Spawn a new task to update the structures */

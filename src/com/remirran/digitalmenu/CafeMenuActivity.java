@@ -75,57 +75,48 @@ public class CafeMenuActivity extends Activity {
 			}
 		}
         
-        /* Fill items for 1st section */
+        
+    	/* Fill items for 1st section */
         ListView tLstLayout = (ListView) findViewById(R.id.main_list_layout);
-        List<Section> subs = eData.getSubs(((Button)tTtlLayout.getChildAt(0)).getText().toString());
-        try {
-	        List<String> subsTitles = (List) subs;
-	        ArrayAdapter<String> tLstAdapter = new ArrayAdapter<String>(this,
-	        		R.layout.main_section_item, subsTitles);
-	        tLstLayout.setAdapter(tLstAdapter);
-	        
-	        tLstLayout.setOnItemClickListener(new OnItemClickListener() {
-	        	@Override
-	            public void onItemClick(AdapterView<?> lv, View v, int position, long id) {
-	            	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
-	            	unbindDrawables(tTableLayout);
-	            	System.gc();
-	            	
-	            	/* Start drawing */
-	                View tView = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
-	                
-	                /* Fill table */
-	                TableRow tTableRows[] = { (TableRow) tView.findViewById(R.id.main_table_row1), 
-	                		(TableRow) tView.findViewById(R.id.main_table_row2) };
-	                Vector<Dish> dishes = eData.getDishesBySectionName(((TextView)v).getText().toString());
-	                try {
-	                	for (int i = 0; i < dishes.size(); i++ ) {
-		                	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
-		                	ImageView tImg = (ImageView) tView.findViewById(R.id.main_table_img);
-		                	ExtData.fillImg(dishes.elementAt(i).getImgUri(), hl, tImg);
-		                	tImg.setContentDescription(dishes.elementAt(i).getDesc());
-		                	tTableRows[i%2].addView(tView);
-		                }
-	                }catch (NullPointerException e) {
-	                	/*TODO: show something else, case of no dishes*/
+        tLstLayout.setOnItemClickListener(new OnItemClickListener() {
+        	@Override
+            public void onItemClick(AdapterView<?> lv, View v, int position, long id) {
+        		/*TODO: move to a function*/
+            	mainDataClear();
+            	
+            	/* Start drawing */
+            	LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
+                View tView = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
+                
+                /* Fill table */
+                TableRow tTableRows[] = { (TableRow) tView.findViewById(R.id.main_table_row1), 
+                		(TableRow) tView.findViewById(R.id.main_table_row2) };
+                Vector<Dish> dishes = eData.getDishesBySectionName(((TextView)v).getText().toString());
+                try {
+                	for (int i = 0; i < dishes.size(); i++ ) {
+	                	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
+	                	ImageView tImg = (ImageView) tView.findViewById(R.id.main_table_img);
+	                	ExtData.fillImg(dishes.elementAt(i).getImgUri(), hl, tImg);
+	                	tImg.setContentDescription(dishes.elementAt(i).getDesc());
+	                	tTableRows[i%2].addView(tView);
 	                }
-	                /* TODO: remove this */
-	                //((TextView) v).setBackgroundColor(Color.parseColor("#cccccc"));
-	            }
-			});
-        }catch (NullPointerException e) {
-        	/*TODO: Case of no subs*/
-        }
+                }catch (NullPointerException e) {
+                	/*TODO: show something else, case of no dishes*/
+                }
+                
+                /* TODO: remove this */
+                //((TextView) v).setBackgroundColor(Color.parseColor("#cccccc"));
+            }
+		});
         
         /* Init side menu with first section data */
         titleButtonOnClick(tTtlLayout.getChildAt(0));
             
 	}
 	
-    public void titleButtonOnClick(View v) {
-        LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
-
-        ((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
+	private void titleButtonSwitch(View v) {
+		LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
+		((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
         ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.menu_button_common);
         tTtlLayout.removeView(v);
         ((Button)v).setTextColor(Color.parseColor("#000000"));
@@ -133,34 +124,46 @@ public class CafeMenuActivity extends Activity {
         ((Button)v).setBackgroundResource(R.drawable.menu_button_active);
         tTtlLayout.addView(v, 0);
         tTtlLayout.requestLayout();
-    	
-    	HorizontalScrollView tTableLayout = (HorizontalScrollView) findViewById(R.id.main_htable_layout);
-    	unbindDrawables(tTableLayout);
-    	//System.gc();
-    	
-    	ListView tLstLayout = (ListView) findViewById(R.id.main_list_layout);
-        Vector<Section> subs = eData.getSubs(((Button)v).getText().toString());
-        try {
+	}
+	
+	private void updateSubsList(View v) {
+		try {
+			ListView tLstLayout = (ListView) findViewById(R.id.main_list_layout);
+	        Vector<Section> subs = eData.getSubs(((Button)v).getText().toString());
 	        List<String> subsTitles = (List) subs;
 	        ArrayAdapter<String> tLstAdapter = new ArrayAdapter<String>(this,
 	        		R.layout.main_section_item, subsTitles);
 	        tLstLayout.setAdapter(tLstAdapter);
-	    	
-	        try {
-		        View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
-		        ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
-		        Section sect = eData.getSectionByName((String) ((Button) v).getText());
-		        ExtData.fillImg(sect.getImgUri(), hl, tImgView);
-		        tTableLayout.addView(tView);
-	        } catch (NoSuchElementException e) {
-	        	Log.w(LOG_TAG, "Can't get section: ", e);
-	        }
-        } catch (NullPointerException e) {
+		} catch (NullPointerException e) {
         	/* TODO: case of no subs*/
+        }
+	}
+	
+	private void mainDataClear() {
+		LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
+    	unbindDrawables(tTableLayout);
+    	System.gc();
+	}
+	
+    public void titleButtonOnClick(View v) {
+    	titleButtonSwitch(v);
+        mainDataClear();
+    	
+    	updateSubsList(v);
+        try {
+        	LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
+        	View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
+	        ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
+	        Section sect = eData.getSectionByName((String) ((Button) v).getText());
+	        ExtData.fillImg(sect.getImgUri(), hl, tImgView);
+	        tTableLayout.addView(tView);
+        } catch (NoSuchElementException e) {
+        	Log.w(LOG_TAG, "Can't get section: ", e);
         }
     }
     
     private void unbindDrawables (View v) {
+    	if (v == null) return;
     	if (v.getBackground() != null){
     		if (v instanceof ImageView) {
     			BitmapDrawable content = (BitmapDrawable) ((ImageView) v).getDrawable();
