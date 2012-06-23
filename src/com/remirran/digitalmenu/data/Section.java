@@ -41,4 +41,12 @@ public class Section implements Comparable<Section>{
 	public String toString() {
 		return tName;
 	}
+	@Override
+	public boolean equals(Object o) {
+		return tId.equals(((Section)o).tId) && tName.equals(((Section)o).tName);
+	}
+	@Override
+	public int hashCode() {
+		return tId.hashCode() ^ tName.hashCode();
+	}
 }

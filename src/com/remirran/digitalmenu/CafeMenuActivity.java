@@ -25,7 +25,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -199,6 +198,10 @@ public class CafeMenuActivity extends Activity {
     			Log.d("hz", "requestCode: "+ requestCode);
     		}
     	}
+    }
+    
+    private void onTableImageClick (View v) {
+    	
     }
 
 }
