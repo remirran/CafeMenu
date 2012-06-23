@@ -44,9 +44,9 @@ public class ExtData implements DlCallbacks {
 	private static String lastUpdate;
 	private static String advUri;
 	private static final Vector<Section> sections = new Vector<Section>();
-	private static final HashMap<String, Vector<Section>> subs = new HashMap<String, Vector<Section>>();
-	private static final HashMap<String, Vector<Dish>> dishes = new HashMap<String, Vector<Dish>>();
-	private static final HashMap<String, String> flatSubs = new HashMap<String, String>();
+	private static final HashMap<Section, Vector<Section>> subs = new HashMap<Section, Vector<Section>>();
+	private static final HashMap<Section, Vector<Dish>> dishes = new HashMap<Section, Vector<Dish>>();
+	private static final Vector<Section> flatSubs = new Vector<Section>();
 	
 	private Section currentObj;
 	
@@ -165,7 +165,7 @@ public class ExtData implements DlCallbacks {
 			} else if (key.equals("categoryId")) {
 				currentObj.setCategoryId(value);
 			} else if (key.equals("price")) {
-				((Dish)currentObj).setPrice(value);
+				((Dish)currentObj).setPrice(Integer.parseInt(value));
 			} else if (key.equals("name")) {
 				currentObj.setName(value);
 			} else if (key.equals("picture") && value.trim().startsWith("http://") ) {
@@ -184,18 +184,18 @@ public class ExtData implements DlCallbacks {
 			if (currentObj.isRootElement()) {
 				synchronized (sections) {
 					sections.add(currentObj);
-					flatSubs.put(currentObj.getId(), currentObj.getName());
+					flatSubs.add(currentObj);
 				}
 			} else {
 				synchronized (subs) {
 					try {
-						Section root = getRootSectionbyId(currentObj.getCategoryId());
-						if (!subs.containsKey(root.getName())) {
-							subs.put(root.getName(), new Vector<Section>());
+						Section root = getSectionbyId(currentObj.getCategoryId());
+						if (!subs.containsKey(root)) {
+							subs.put(root, new Vector<Section>());
 						}
 						/* TODO: check duplicates */
-						subs.get(root.getName()).add(currentObj);
-						flatSubs.put(currentObj.getId(), currentObj.getName());
+						subs.get(root).add(currentObj);
+						flatSubs.add(currentObj);
 					} catch (NullPointerException e) {
 						Log.w(LOG_TAG, "Can't add category: " + currentObj.getId(), e);
 					}
@@ -210,11 +210,11 @@ public class ExtData implements DlCallbacks {
 			state = STATE_NONE;
 			synchronized (dishes) {
 				try {
-					String parentName = flatSubs.get(currentObj.getCategoryId());
-					if (!dishes.containsKey(parentName)) {
-						dishes.put(parentName, new Vector<Dish>());
+					Section parent = getSectionbyId(currentObj.getCategoryId());
+					if (!dishes.containsKey(parent)) {
+						dishes.put(parent, new Vector<Dish>());
 					}
-					dishes.get(parentName).add((Dish)currentObj);
+					dishes.get(parent).add((Dish)currentObj);
 				} catch (NullPointerException e) {
 					Log.w(LOG_TAG, "Can't add dish: " + currentObj.getId(), e);
 				}
@@ -226,8 +226,8 @@ public class ExtData implements DlCallbacks {
 		}
 	}
 	
-	private Section getRootSectionbyId(String id) {
-		Iterator<Section> itr = sections.iterator();
+	private Section getSectionbyId(String id) {
+		Iterator<Section> itr = flatSubs.iterator();
 		while (itr.hasNext()) {
 			Section elem = itr.next();
 			if (elem.getId().equals(id)) {
@@ -368,8 +368,8 @@ public class ExtData implements DlCallbacks {
 	}
 	
 	public Section getSectionByName(String name) throws NoSuchElementException {
-		Iterator<Section> itr = sections.iterator();
-		synchronized (sections) {
+		Iterator<Section> itr = flatSubs.iterator();
+		synchronized (flatSubs) {
 			while (itr.hasNext()) {
 				Section tmp = itr.next();
 				if (tmp.getName() == name) return tmp;
@@ -379,11 +379,11 @@ public class ExtData implements DlCallbacks {
 	}
 	
 	public Vector<Dish> getDishesBySectionName(String name) {
-		return dishes.get(name);
+		return dishes.get(getSectionByName(name));
 	}
 	
-	public Vector<Section> getSubs(String key) {
-		return subs.get(key);
+	public Vector<Section> getSubs(String name) {
+		return subs.get(getSectionByName(name));
 	}
 
 	@Override

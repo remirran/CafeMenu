@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
-    <ImageView
+    <com.remirran.digitalmenu.MenuImage
         android:id="@+id/main_table_img" 
         android:contentDescription="@string/main_text_img_desc"
         android:adjustViewBounds="true"

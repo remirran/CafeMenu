@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import com.remirran.digitalmenu.data.Dish;
 import com.remirran.digitalmenu.data.ExtData;
+import com.remirran.digitalmenu.data.Order;
 import com.remirran.digitalmenu.data.Section;
 
 import android.app.Activity;
@@ -28,6 +29,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -39,6 +41,9 @@ public class CafeMenuActivity extends Activity {
 	private ExtData eData;
 	private static LayoutInflater ltInflatter;
 	private static Handler hl;
+	/*Vars*/
+	private static final Order order = new Order();
+	private static OrderAdapter orderAdapter;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,14 @@ public class CafeMenuActivity extends Activity {
         //startActivityForResult(tInitScreen, REQ_CODE_TABLE_ID);
         
         ltInflatter = getLayoutInflater();
+        
+        /*Setup order list*/
+        //int orderTo[] = {R.id.order_pic, R.id.order_name, R.id.order_count};
+       // int orderTo[] = {R.id.order_name, R.id.order_count};
+       // orderAdapter = new OrderAdapter(this, Order.getData(), R.layout.main_order_item, Order.getFrom(), orderTo);
+       // orderAdapter.setViewBinder(new orderViewBinder());
+       // ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
+       // tLstLayout.setAdapter(orderAdapter);
     }
 	
 	public void applyDownloadedInfo() {
@@ -94,9 +107,8 @@ public class CafeMenuActivity extends Activity {
                 try {
                 	for (int i = 0; i < dishes.size(); i++ ) {
 	                	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
-	                	ImageView tImg = (ImageView) tView.findViewById(R.id.main_table_img);
-	                	ExtData.fillImg(dishes.elementAt(i).getImgUri(), hl, tImg);
-	                	tImg.setContentDescription(dishes.elementAt(i).getDesc());
+	                	MenuImage tImg = (MenuImage) tView.findViewById(R.id.main_table_img);
+	                	tImg.assign(dishes.elementAt(i));
 	                	tTableRows[i%2].addView(tView);
 	                }
                 }catch (NullPointerException e) {
@@ -200,8 +212,32 @@ public class CafeMenuActivity extends Activity {
     	}
     }
     
-    private void onTableImageClick (View v) {
+    public void onTableImageClick (View v) {
+    	order.inc(((MenuImage)v).getProduct());
+    	//orderAdapter.notifyDataSetChanged();
+
+    	
+    	int orderTo[] = {R.id.order_name, R.id.order_count};
+        orderAdapter = new OrderAdapter(this, Order.getData(), R.layout.main_order_item, Order.getFrom(), orderTo);
+       // orderAdapter.setViewBinder(new orderViewBinder());
+        ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
+        tLstLayout.setAdapter(orderAdapter);
+    }
+    
+    class orderViewBinder implements SimpleAdapter.ViewBinder {
+
+		@Override
+		public boolean setViewValue(View view, Object data,
+				String textRepresentation) {
+			//switch(view.getId()) {
+			//case R.id.order_pic:
+			//	((MenuImage)view).assign((Dish)data);
+			//	return true;
+			//}
+			return false;
+		}
     	
     }
+  
 
 }
