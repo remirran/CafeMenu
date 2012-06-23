@@ -76,6 +76,7 @@ public class ExtData implements DlCallbacks {
 		
 		@Override
 		protected Void doInBackground(FileCache... params) {
+			listener.cleanOldValues();
 			listener.doParseXML(params[0]);
 			return null;
 		}
@@ -383,5 +384,21 @@ public class ExtData implements DlCallbacks {
 	
 	public Vector<Section> getSubs(String key) {
 		return subs.get(key);
+	}
+
+	@Override
+	public void cleanOldValues() {
+		synchronized (dishes) {
+			dishes.clear();
+		}
+		synchronized (subs) {
+			subs.clear();
+		}
+		synchronized (sections) {
+			sections.clear();
+		}
+		synchronized (flatSubs) {
+			flatSubs.clear();
+		}
 	}
 }

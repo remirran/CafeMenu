@@ -14,6 +14,8 @@
 	    android:layout_width="fill_parent"
     	android:layout_height="fill_parent"
     	android:orientation="horizontal"
+    	android:id="@+id/main_center"
+    	android:baselineAligned="false"
     	android:weightSum="4">
     	<RelativeLayout 
     	    android:layout_width="0dp"

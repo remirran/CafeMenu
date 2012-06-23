@@ -8,6 +8,7 @@
         android:contentDescription="@string/main_text_img_desc"
         android:adjustViewBounds="true"
     	android:scaleType="centerCrop"
+    	android:onClick="onTableImageClick"
         android:layout_width="503dp"
     	android:layout_height="348dp"/>
 </LinearLayout>

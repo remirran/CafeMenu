@@ -34,7 +34,6 @@ import android.graphics.RectF;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.LinearLayout.LayoutParams;
 
 public class FileCache {
 	private static final String LOG_TAG = "FileCache";
