@@ -65,11 +65,11 @@ public class CafeMenuActivity extends Activity {
         
         /*Setup order list*/
         //int orderTo[] = {R.id.order_pic, R.id.order_name, R.id.order_count};
-       // int orderTo[] = {R.id.order_name, R.id.order_count};
-       // orderAdapter = new OrderAdapter(this, Order.getData(), R.layout.main_order_item, Order.getFrom(), orderTo);
-       // orderAdapter.setViewBinder(new orderViewBinder());
-       // ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
-       // tLstLayout.setAdapter(orderAdapter);
+        int orderTo[] = {R.id.order_name, R.id.order_count, R.id.order_price};
+        orderAdapter = new OrderAdapter(this, Order.getData());
+        //orderAdapter.setViewBinder(new orderViewBinder());
+        ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
+        tLstLayout.setAdapter(orderAdapter);
     }
 	
 	public void applyDownloadedInfo() {
@@ -126,15 +126,19 @@ public class CafeMenuActivity extends Activity {
 	}
 	
 	private void titleButtonSwitch(View v) {
-		LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
-		((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
-        ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.menu_button_common);
-        tTtlLayout.removeView(v);
-        ((Button)v).setTextColor(Color.parseColor("#000000"));
-        ((Button)v).setBackgroundResource(R.drawable.table_img_round_corners);
-        ((Button)v).setBackgroundResource(R.drawable.menu_button_active);
-        tTtlLayout.addView(v, 0);
-        tTtlLayout.requestLayout();
+		try {
+			LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
+			((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
+		    ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.menu_button_common);
+		    tTtlLayout.removeView(v);
+		    ((Button)v).setTextColor(Color.parseColor("#000000"));
+		    ((Button)v).setBackgroundResource(R.drawable.table_img_round_corners);
+		    ((Button)v).setBackgroundResource(R.drawable.menu_button_active);
+		    tTtlLayout.addView(v, 0);
+		    tTtlLayout.requestLayout();
+		} catch (NullPointerException e) {
+			Log.w(LOG_TAG, "No menu buttons", e);
+		}
 	}
 	
 	private void updateSubsList(View v) {
@@ -170,6 +174,8 @@ public class CafeMenuActivity extends Activity {
 	        tTableLayout.addView(tView);
         } catch (NoSuchElementException e) {
         	Log.w(LOG_TAG, "Can't get section: ", e);
+        } catch (NullPointerException e) {
+        	Log.w(LOG_TAG, "Title bar is empty", e);
         }
     }
     
@@ -214,14 +220,7 @@ public class CafeMenuActivity extends Activity {
     
     public void onTableImageClick (View v) {
     	order.inc(((MenuImage)v).getProduct());
-    	//orderAdapter.notifyDataSetChanged();
-
-    	
-    	int orderTo[] = {R.id.order_name, R.id.order_count};
-        orderAdapter = new OrderAdapter(this, Order.getData(), R.layout.main_order_item, Order.getFrom(), orderTo);
-       // orderAdapter.setViewBinder(new orderViewBinder());
-        ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
-        tLstLayout.setAdapter(orderAdapter);
+    	orderAdapter.notifyDataSetChanged();
     }
     
     class orderViewBinder implements SimpleAdapter.ViewBinder {

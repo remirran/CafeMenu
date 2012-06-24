@@ -33,6 +33,7 @@ public class Downloader extends AsyncTask<String, Void, FileCache>{
 	@Override
 	protected void onPostExecute(FileCache result) {
 		super.onPostExecute(result);
+		/*TODO: check file status, not call this line in case of download fails*/
 		listener.onFileReceived(result);
 	}	
 }

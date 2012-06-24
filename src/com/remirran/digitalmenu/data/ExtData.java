@@ -95,7 +95,8 @@ public class ExtData implements DlCallbacks {
 		ExtData.context = context;
 		state = STATE_NONE;
 		/* Spawn a new task to update the structures */
-		new Downloader(this).execute(new String[] {XML_URI});
+		/*TODO: remove "true" to disable cache*/
+		new Downloader(this).execute(new String[] {XML_URI, "true"});
 	}
 	
 	public void refresh () {
