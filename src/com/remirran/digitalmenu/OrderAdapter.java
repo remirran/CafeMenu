@@ -1,34 +1,33 @@
 package com.remirran.digitalmenu;
 
-import java.util.HashMap;
-
-import com.remirran.digitalmenu.data.Dish;
+import com.remirran.digitalmenu.data.Order;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class OrderAdapter extends BaseAdapter {
 	private Context ctx;
 	private LayoutInflater linf;
 	
-	public OrderAdapter(Context context, ) {
+	public OrderAdapter(Context context) {
 		ctx = context;
-		linf = (LayoutInflater) ctx.getSystemService(ctx.LAYOUT_INFLATER_SERVICE);
+		linf = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return Order.getCount();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		// TODO Auto-generated method stub
-		return null;
+		return Order.getItemByIndex(position);
 	}
 
 	@Override
@@ -42,7 +41,24 @@ public class OrderAdapter extends BaseAdapter {
 		if (view == null) {
 			view = linf.inflate(R.layout.main_order_item, parent, false);
 		}
-		return null;
+		
+		((TextView) view.findViewById(R.id.order_name)).setText(Order.getItemByIndex(position).getName());
+		((TextView) view.findViewById(R.id.order_count)).setText("x"+Order.getCountByIndex(position)+"=");
+		((TextView) view.findViewById(R.id.order_price)).setText(Order.getSumByIndex(position));
+		ImageView iv = (ImageView) view.findViewById(R.id.order_cancel);
+		iv.setOnClickListener(imgRemoveClickListener);
+		iv.setTag(position);
+		return view;
 	}
 	
+	OnClickListener imgRemoveClickListener = new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			Order.remove((Integer) v.getTag());
+			notifyDataSetChanged();
+			
+			((CafeMenuActivity) ctx).updateOrderDetailsOnDelete();
+		}
+	};
 }

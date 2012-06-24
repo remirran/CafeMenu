@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    <TextView 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/main_text_confirm"
+		style="@style/DigitalMenu.Main.TitleButton"/>
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <Button android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/order_complete"
+            style="@style/DigitalMenu.Main.TitleButton"/>
+        <Button android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/order_clear"
+            android:onClick="onOrderCleanButtonClick"
+            style="@style/DigitalMenu.Main.TitleButton"/>
+    </LinearLayout>
+	<LinearLayout android:layout_width="fill_parent"
+	    android:layout_height="wrap_content">
+	    <TextView android:layout_height="wrap_content"
+	        android:layout_width="0dp"
+	        android:text="@string/order_sum"
+	         android:layout_gravity="center_horizontal"
+	        android:layout_weight="1"/>
+	    <TextView android:layout_height="wrap_content"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_gravity="center_horizontal"
+	        android:id="@+id/order_total_sum"/>
+	</LinearLayout>
+</LinearLayout>

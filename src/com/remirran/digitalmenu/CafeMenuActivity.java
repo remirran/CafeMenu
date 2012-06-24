@@ -29,7 +29,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -63,11 +62,7 @@ public class CafeMenuActivity extends Activity {
         
         ltInflatter = getLayoutInflater();
         
-        /*Setup order list*/
-        //int orderTo[] = {R.id.order_pic, R.id.order_name, R.id.order_count};
-        int orderTo[] = {R.id.order_name, R.id.order_count, R.id.order_price};
-        orderAdapter = new OrderAdapter(this, Order.getData());
-        //orderAdapter.setViewBinder(new orderViewBinder());
+        orderAdapter = new OrderAdapter(this);
         ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
         tLstLayout.setAdapter(orderAdapter);
     }
@@ -221,22 +216,36 @@ public class CafeMenuActivity extends Activity {
     public void onTableImageClick (View v) {
     	order.inc(((MenuImage)v).getProduct());
     	orderAdapter.notifyDataSetChanged();
-    }
-    
-    class orderViewBinder implements SimpleAdapter.ViewBinder {
-
-		@Override
-		public boolean setViewValue(View view, Object data,
-				String textRepresentation) {
-			//switch(view.getId()) {
-			//case R.id.order_pic:
-			//	((MenuImage)view).assign((Dish)data);
-			//	return true;
-			//}
-			return false;
-		}
     	
+    	TextView tv = (TextView) findViewById(R.id.order_total_sum);
+    	if (tv == null) {
+    		LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
+    		tll.removeAllViews();
+    		View w = ltInflatter.inflate(R.layout.main_order_complete, tll, false);
+    		tv = (TextView) w.findViewById(R.id.order_total_sum);
+    		tll.addView(w);
+    	}
+    	tv.setText(Order.getSum());
     }
   
+    public void onOrderCleanButtonClick (View v) {
+    	order.clear();
+    	orderAdapter.notifyDataSetChanged();
+    	
+    	LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
+    	tll.removeAllViews();
+    	ltInflatter.inflate(R.layout.main_order_empty, tll);
+    }
+    
+    public void updateOrderDetailsOnDelete () {
+    	TextView tv = (TextView) findViewById(R.id.order_total_sum);
+    	tv.setText(Order.getSum());
+    	
+    	if (Order.getCount() == 0) {
+    		LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
+    		tll.removeAllViews();
+    		ltInflatter.inflate(R.layout.main_order_empty, tll);
+    	}
+    }
 
 }

@@ -39,13 +39,17 @@
 	   			android:layout_below="@+id/main_text_confirm"
 	   			android:orientation="vertical">
 			</ListView>
-			<TextView 
-			    android:id="@+id/main_text_confirm"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_centerVertical="true"
-				android:text="@string/main_text_confirm"
-				style="@style/DigitalMenu.Main.TitleButton"/>
+			<LinearLayout
+			    android:layout_height="wrap_content"
+			    android:layout_width="fill_parent"
+			    android:layout_centerVertical="true"
+			    android:id="@+id/main_text_confirm">
+				<TextView 
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:text="@string/main_text_confirm"
+					style="@style/DigitalMenu.Main.TitleButton"/>
+			</LinearLayout>
 		</RelativeLayout>
 		<LinearLayout 
 		    android:layout_width="0dp"

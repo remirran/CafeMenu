@@ -1,21 +1,27 @@
 package com.remirran.digitalmenu.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 
 public class Order {
 	private class Pair {
 		private Dish dish;
 		private int count;
-		public Pair(Dish dish, int count) {
+		public Pair(Dish dish) {
 			this.dish = dish;
-			this.count = count;
-		}
-		public Dish getDish() {
-			return dish;
+			this.count = 1;
 		}
 		public int inc() {
 			return ++count;
+		}
+		public Dish toDish(){
+			return dish;
+		}
+		public int getCount() {
+			return count;
+		}
+		public int getSum() {
+			return dish.getPrice() * count;
 		}
 		@Override
 		public boolean equals(Object o) {
@@ -25,41 +31,57 @@ public class Order {
 	private static ArrayList<Pair> list = new ArrayList<Order.Pair>();
 	private static int sum;
 	
-	public void set(Dish d, int count) {
-		synchronized (list) {
-			list.put(d, count);
+	private Pair search(Dish d) {
+		Iterator<Pair> itr = list.iterator();
+		while (itr.hasNext()) {
+			Pair elem = itr.next();
+			if (elem.equals(d)) return elem;
 		}
-		calc();
+		return null;
 	}
+	
 	public void inc(Dish d) {
 		synchronized (list) {
-			if (list.containsKey(d)) {
-				int old = list.get(d);
-				list.put(d, ++old);
+			Pair pair = search(d);
+			if (pair == null) {
+				list.add(new Pair(d));
 			} else {
-				list.put(d, 1);
+				pair.inc();
 			}
 		}
 		calc();
 	}
-	public void remove(Dish d) {
+	public static void remove(int pos) {
 		synchronized (list) {
-			list.remove(d);
+			list.remove(pos);
 		}
 		calc();
 	}
-	public int getSum() {
-		return sum;
+	public void clear() {
+		list.clear();
+		sum = 0;
 	}
-	private void calc() {
+	public static String getSum() {
+		return "" + sum;
+	}
+	private static void calc() {
 		synchronized (list) {
 			sum = 0;
-			for (Dish key : list.keySet()) {
-				sum =+ key.getPrice() * list.get(key);
+			for (Pair pair : list) {
+				sum += pair.getSum();
 			}
 		}
 	}
 	public static int getCount() {
 		return list.size();
+	}
+	public static Dish getItemByIndex(int pos) {
+		return list.get(pos).toDish();
+	}
+	public static int getCountByIndex(int pos) {
+		return list.get(pos).getCount();
+	}
+	public static String getSumByIndex(int pos) {
+		return "" + list.get(pos).getSum();
 	}
 }
