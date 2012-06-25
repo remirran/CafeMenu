@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style parent="@android:style/Theme.NoTitleBar.Fullscreen" name="DigitalMenu"></style>
-    <style parent="@android:style/Widget.Holo.Button" name="DigitalMenu.Main.TitleButton">
+    <style parent="@DigitalMenu.Main.DefaultButton" name="DigitalMenu.Main.TitleButton">
         <item name="android:layout_weight">1</item>
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">#ffffff</item>
-        <item name="android:background">@drawable/menu_button_common</item>
     </style>
     <style parent="@style/DigitalMenu.Main.TitleButton" name="DigitalMenu.Main.TitleButton.Active">
         <item name="android:textColor">#000000</item>
@@ -34,5 +30,11 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
-    
+        <style parent="@android:style/Widget.Holo.Button" name="DigitalMenu.Main.DefaultButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:background">@drawable/menu_button_common</item>
+    </style>
 </resources>

@@ -40,9 +40,11 @@ public class CafeMenuActivity extends Activity {
 	private ExtData eData;
 	private static LayoutInflater ltInflatter;
 	private static Handler hl;
-	/*Vars*/
+	/* Order */
 	private static final Order order = new Order();
 	private static OrderAdapter orderAdapter;
+	/*Main window state save*/
+	private static View save = null;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -156,6 +158,26 @@ public class CafeMenuActivity extends Activity {
 	}
 	
     public void titleButtonOnClick(View v) {
+    	/*Restore main view if req*/
+    	if (save != null) {
+    		LinearLayout tll = (LinearLayout) findViewById(R.id.main);
+    		tll.removeViewAt(1);
+    		tll.addView(save);
+    		save = null;
+    		
+    		/*Assign adapter*/
+    		ListView tLstLayout = (ListView) tll.findViewById(R.id.main_order_layout);
+            tLstLayout.setAdapter(orderAdapter);
+            
+            /*Reset order if req*/
+        	if (Order.getCount() == 0) {
+        		tll = (LinearLayout) findViewById(R.id.main_text_confirm);
+        		if (tll != null) {
+        			tll.removeAllViews();
+        			ltInflatter.inflate(R.layout.main_order_empty, tll);
+        		}
+        	}
+    	}
     	titleButtonSwitch(v);
         mainDataClear();
     	
@@ -233,8 +255,10 @@ public class CafeMenuActivity extends Activity {
     	orderAdapter.notifyDataSetChanged();
     	
     	LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
-    	tll.removeAllViews();
-    	ltInflatter.inflate(R.layout.main_order_empty, tll);
+    	if (tll != null) {
+    		tll.removeAllViews();
+    		ltInflatter.inflate(R.layout.main_order_empty, tll);
+    	}
     }
     
     public void updateOrderDetailsOnDelete () {
@@ -243,9 +267,46 @@ public class CafeMenuActivity extends Activity {
     	
     	if (Order.getCount() == 0) {
     		LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
-    		tll.removeAllViews();
-    		ltInflatter.inflate(R.layout.main_order_empty, tll);
+    		if (tll != null) {
+    			tll.removeAllViews();
+    			ltInflatter.inflate(R.layout.main_order_empty, tll);
+    		}
     	}
+    }
+    
+    public void onOrderCompleteClick(View v) {
+    	/*Replace main screen*/
+    	LinearLayout tll = (LinearLayout) findViewById(R.id.main);
+    	save = tll.getChildAt(1);
+    	tll.removeViewAt(1);
+    	ltInflatter.inflate(R.layout.order_second_screen, tll);
+    	
+    	/*Remove title button highlight*/
+		try {
+			LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
+			((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
+		    ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.menu_button_common);
+		    tTtlLayout.requestLayout();
+		} catch (NullPointerException e) {
+			Log.w(LOG_TAG, "No menu buttons", e);
+		}
+		
+		/*Set sum*/
+		TextView tv = (TextView) findViewById(R.id.order_total_sum);
+		tv.setText(Order.getSum());
+		
+		/*Assign adapter*/
+		ListView tLstLayout = (ListView) tll.findViewById(R.id.main_order_layout);
+        tLstLayout.setAdapter(orderAdapter);
+    	
+    }
+    
+    public void onOrderSendClick(View v) {
+    	/*TODO: Send it on server*/
+    	
+    	LinearLayout tll = (LinearLayout) findViewById(R.id.order_second_screen);
+    	tll.removeAllViews();
+    	ltInflatter.inflate(R.layout.order_thanks, tll);
     }
 
 }

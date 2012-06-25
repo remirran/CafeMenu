@@ -26,4 +26,11 @@
     <string name="order_complete">Оформить заказ</string>
     <string name="order_clear">Очистить заказ</string>
     <string name="order_sum">Общая сумма</string>
+    <string name="order_complete_title">Оформление заказа</string>
+    <string name="order_complete_left1">Два отдельных зала вместимостью 60 и 20 человек.</string>
+    <string name="order_complete_left2">Предварительный заказ торжеств и банкетов у бармена или по тел. 258&#8211;06&#8211;11</string>
+    <string name="order_complete_left3">За принесенные с собой закуски и спиртные напитки - ШТРАФ 500 руб.</string>
+    <string name="order_complete_left4" formatted="false">В Ваш счет включается 5% за обслуживание и 10% за банкет.</string>
+    <string name="order_send">Отправить</string>
+    <string name="order_thanks">Ваш заказ отправлен на кухню. Через пару минут Вам его принесут. А пока Вы можете проверить почту, почитать новости, посмотреть фильм или сыграть в игры</string>
 </resources>
