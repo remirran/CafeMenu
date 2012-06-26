@@ -186,7 +186,7 @@ public class CafeMenuActivity extends Activity {
         	LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
         	View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
 	        ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
-	        Section sect = eData.getSectionByName((String) ((Button) v).getText());
+	        Section sect = eData.getSectionByName((String) ((Button) v).getText().toString());
 	        ExtData.fillImg(sect.getImgUri(), hl, tImgView);
 	        tTableLayout.addView(tView);
         } catch (NoSuchElementException e) {

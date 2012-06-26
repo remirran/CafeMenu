@@ -37,7 +37,6 @@ import android.widget.ImageView;
 
 public class FileCache {
 	private static final String LOG_TAG = "FileCache";
-	private static final int ROUND_PX = 30;
 	public static final long CACHE_TIME = 31536000; /* One year */
 	private static HashMap<String, File> cacheIndex = new HashMap<String, File>();
 	private String uri;
@@ -114,10 +113,7 @@ public class FileCache {
 		synchronized (cacheIndex) {
 			Log.d(LOG_TAG, "REQ: "+uri + " = " + md5(uri));
 			Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cacheIndex.get(uri)));
-//			int a = iv.getMeasuredHeight();
-//			int b = iv.getMeasuredWidth();
-//			Bitmap scale = Bitmap.createScaledBitmap(bm, Math.round(iv.getWidth() * ExtData.DENSITY), Math.round(iv.getHeight() * ExtData.DENSITY), true);
-			iv.setImageBitmap(setRoundCorners(bm, ROUND_PX));
+			iv.setImageBitmap(bm);
 		}
 	}
 	
@@ -125,33 +121,10 @@ public class FileCache {
 		Bitmap bm;
 		try {
 			bm = BitmapFactory.decodeStream(getInputStream());
-//			int a = iv.getHeight();
-///			int b = iv.getWidth();
-//			Bitmap scale = Bitmap.createScaledBitmap(bm, Math.round(iv.getWidth() * ExtData.DENSITY), Math.round(iv.getHeight() * ExtData.DENSITY), true);
-			iv.setImageBitmap(setRoundCorners(bm, ROUND_PX));
+			iv.setImageBitmap(bm);
 		} catch (FileNotFoundException e) {
 			Log.w(LOG_TAG, "File not found: ", e);
 		}
-	}
-	
-	private static Bitmap setRoundCorners(Bitmap in, int roundpx) {
-		Bitmap output = Bitmap.createBitmap(in.getWidth(), in.getHeight(), Config.ARGB_8888);
-		Canvas canvas = new Canvas(output);
-		
-		/*TODO: add possibility to fill it from config*/
-		final int color = 0xffcccccc;
-		final Paint paint = new Paint();
-		final Rect rect = new Rect(0, 0, in.getWidth(), in.getHeight());
-		final RectF rectF = new RectF(rect);
-		final float roundPX = roundpx * ExtData.DENSITY;
-		
-		paint.setAntiAlias(true);
-		canvas.drawARGB(0, 0, 0, 0);
-		paint.setColor(color);
-		canvas.drawRoundRect(rectF, roundPX, roundPX, paint);
-		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
-		canvas.drawBitmap(in, rect, rect, paint);
-		return output;
 	}
 	
 	public boolean isCached() throws IOException {
