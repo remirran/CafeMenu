@@ -7,6 +7,7 @@
     </style>
     <style parent="@style/DigitalMenu.Main.TitleButton" name="DigitalMenu.Main.TitleButton.Active">
         <item name="android:textColor">#000000</item>
+        <item name="android:singleLine">true</item>
         <item name="android:background">@drawable/menu_button_active</item>
     </style>
     <style parent="@android:style/Widget.Holo.TextView" name="DigitalMenu.Main.SectionItem">
