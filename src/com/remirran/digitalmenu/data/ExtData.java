@@ -373,7 +373,7 @@ public class ExtData implements DlCallbacks {
 		synchronized (flatSubs) {
 			while (itr.hasNext()) {
 				Section tmp = itr.next();
-				if (tmp.getName().equals(name)) return tmp;
+				if (tmp.getName() == name) return tmp;
 			}
 		}
 		throw new NoSuchElementException("Can't find section: " + name);
