@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.remirran.digitalmenu.MenuImage xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent">
+	<com.remirran.digitalmenu.MenuImage 
         android:id="@+id/main_table_img" 
         android:contentDescription="@string/main_text_img_desc"
         android:adjustViewBounds="true"
     	android:scaleType="centerCrop"
     	android:onClick="onTableImageClick"
         android:layout_width="503dp"
-    	android:layout_height="fill_parent"/>
+    	android:layout_height="fill_parent"
+    	android:layout_centerInParent="true"/>
+	<Button android:layout_width="100dp"
+	    android:layout_height="wrap_content"
+	    android:text="@string/dish_select"
+	    android:layout_alignParentBottom="true"
+	    android:layout_alignParentRight="true"
+	    style="@style/DigitalMenu.Main.DefaultButton"
+	    android:layout_marginBottom="5dp"
+	    android:layout_marginRight="20dp"/>
+</RelativeLayout>

@@ -108,8 +108,8 @@ public class CafeMenuActivity extends Activity {
             View tView = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
             
             /* Fill table */
-            TableRow tTableRows[] = { (TableRow) tView.findViewById(R.id.main_table_row1), 
-            		(TableRow) tView.findViewById(R.id.main_table_row2) };
+            LinearLayout tTableRows[] = { (LinearLayout) tView.findViewById(R.id.main_table_row1), 
+            		(LinearLayout) tView.findViewById(R.id.main_table_row2) };
             Vector<Dish> dishes = eData.getDishesBySection((Section)parent.getAdapter().getItem(position));
             try {
             	for (int i = 0; i < dishes.size(); i++ ) {
@@ -185,7 +185,7 @@ public class CafeMenuActivity extends Activity {
         	LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
         	View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
 	        ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
-	        Section sect = eData.getSectionByName((String) ((Button) v).getText().toString());
+	        Section sect = (Section) ((Button) v).getTag();
 	        ExtData.fillImg(sect.getImgUri(), hl, tImgView);
 	        tTableLayout.addView(tView);
         } catch (NoSuchElementException e) {

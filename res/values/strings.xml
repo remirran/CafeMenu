@@ -23,6 +23,7 @@
     
     <string name="title_adv_img_text">Место для рекламы</string>
     <string name="title_img_entrance">Вход</string>
+    <string name="dish_select">Выбрать</string>
     <string name="order_complete">Оформить заказ</string>
     <string name="order_clear">Очистить заказ</string>
     <string name="order_sum">Общая сумма</string>
