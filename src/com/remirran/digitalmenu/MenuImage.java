@@ -54,6 +54,9 @@ public class MenuImage extends ImageView {
 			return;
 		}
 		Bitmap fullSizeBitmap = drawable.getBitmap();
+		if (fullSizeBitmap == null) {
+			return;
+		}
 		
 		int scaledWidth = getMeasuredWidth();
 		int scaledHeight = getMeasuredHeight();

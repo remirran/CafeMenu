@@ -48,7 +48,7 @@
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
 					android:text="@string/main_text_confirm"
-					style="@style/DigitalMenu.Main.TitleButton"/>
+					style="@style/DigitalMenu.Main.DefaultButton"/>
 			</LinearLayout>
 		</RelativeLayout>
 		<LinearLayout 

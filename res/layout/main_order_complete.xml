@@ -7,7 +7,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/main_text_confirm"
-		style="@style/DigitalMenu.Main.TitleButton"/>
+		style="@style/DigitalMenu.Main.DefaultButton"/>
     <LinearLayout android:layout_width="fill_parent"
         android:layout_height="wrap_content">
         <Button android:layout_width="0dp"
@@ -15,13 +15,13 @@
             android:layout_weight="1"
             android:text="@string/order_complete"
             android:onClick="onOrderCompleteClick"
-            style="@style/DigitalMenu.Main.TitleButton"/>
+            style="@style/DigitalMenu.Main.DefaultButton"/>
         <Button android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="@string/order_clear"
             android:onClick="onOrderCleanButtonClick"
-            style="@style/DigitalMenu.Main.TitleButton"/>
+            style="@style/DigitalMenu.Main.DefaultButton"/>
     </LinearLayout>
 	<LinearLayout android:layout_width="fill_parent"
 	    android:layout_height="wrap_content">

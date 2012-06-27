@@ -379,12 +379,12 @@ public class ExtData implements DlCallbacks {
 		throw new NoSuchElementException("Can't find section: " + name);
 	}
 	
-	public Vector<Dish> getDishesBySectionName(String name) {
-		return dishes.get(getSectionByName(name));
+	public Vector<Dish> getDishesBySection(Section sect) {
+		return dishes.get(sect);
 	}
 	
-	public Vector<Section> getSubs(String name) {
-		return subs.get(getSectionByName(name));
+	public Vector<Section> getSubs(Section sect) {
+		return subs.get(sect);
 	}
 
 	@Override
