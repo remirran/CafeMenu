@@ -11,6 +11,8 @@ import com.remirran.digitalmenu.data.Order;
 import com.remirran.digitalmenu.data.Section;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -27,13 +29,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
 	/* Constants */
 	private final int REQ_CODE_TABLE_ID = 1;
 	private final String LOG_TAG = "CafeMenuActivity";
+	public int DIALOG_ORDER_REMOVE = 1;
 	/* Tools */
 	private ExtData eData;
 	private static LayoutInflater ltInflatter;
@@ -306,6 +308,16 @@ public class CafeMenuActivity extends Activity {
     	LinearLayout tll = (LinearLayout) findViewById(R.id.order_second_screen);
     	tll.removeAllViews();
     	ltInflatter.inflate(R.layout.order_thanks, tll);
+    }
+    
+    @Override
+    protected Dialog onCreateDialog(int id, Bundle params) {
+    	if (id == DIALOG_ORDER_REMOVE) {
+    		AlertDialog.Builder adb = new AlertDialog.Builder(this);
+    		adb.setTitle(R.string.dialog_remove_title);
+    		return adb.create();
+    	}
+    	return null;
     }
 
 }
