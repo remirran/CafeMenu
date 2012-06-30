@@ -11,7 +11,6 @@ import com.remirran.digitalmenu.data.Order;
 import com.remirran.digitalmenu.data.Section;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,15 +22,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
@@ -47,6 +43,7 @@ public class CafeMenuActivity extends Activity {
 	/* Order */
 	private static final Order order = Order.getOrder();
 	private static OrderAdapter orderAdapter;
+	private static OrderDialog orderDialog;
 	private Object dialogObject = null;
 	/*Main window state save*/
 	private static View save = null;
@@ -72,6 +69,7 @@ public class CafeMenuActivity extends Activity {
         orderAdapter = new OrderAdapter(this);
         ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
         tLstLayout.setAdapter(orderAdapter);
+        tLstLayout.setOnItemClickListener(orderListener);
     }
 	
 	public void applyDownloadedInfo() {
@@ -122,12 +120,24 @@ public class CafeMenuActivity extends Activity {
             	for (int i = 0; i < dishes.size(); i++ ) {
                 	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
                 	MenuImage tImg = (MenuImage) tView.findViewById(R.id.main_table_img);
+                	tImg.setMaxLtWidth(tTableLayout.getMeasuredWidth() / 2);
                 	tImg.assign(dishes.elementAt(i));
                 	tTableRows[i%2].addView(tView);
                 }
             }catch (NullPointerException e) {
             	/*TODO: show something else, case of no dishes*/
             }
+		}
+	};
+	
+	private OnItemClickListener orderListener = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
+			dialogObject = orderAdapter.getItem(position);
+			showDialog(DIALOG_ORDER_ADD);
+			
 		}
 	};
 
@@ -248,41 +258,36 @@ public class CafeMenuActivity extends Activity {
     
     public void onTableImageButtonClick (View v) {
     	order.inc(((MenuImage)v).getProduct());
-    	orderAdapter.notifyDataSetChanged();
-    	
-    	TextView tv = (TextView) findViewById(R.id.order_total_sum);
-    	if (tv == null) {
-    		LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
-    		tll.removeAllViews();
-    		View w = ltInflatter.inflate(R.layout.main_order_complete, tll, false);
-    		tv = (TextView) w.findViewById(R.id.order_total_sum);
-    		tll.addView(w);
-    	}
-    	tv.setText(Order.getSum());
+    	updateOrderDetails();
     }
   
     public void onOrderCleanButtonClick (View v) {
     	order.clear();
-    	orderAdapter.notifyDataSetChanged();
-    	
-    	LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
-    	if (tll != null) {
-    		tll.removeAllViews();
-    		ltInflatter.inflate(R.layout.main_order_empty, tll);
-    	}
+    	updateOrderDetails();
     }
     
-    public void updateOrderDetailsOnDelete () {
+    public void updateOrderDetails () {
+    	orderAdapter.notifyDataSetChanged();
+
     	TextView tv = (TextView) findViewById(R.id.order_total_sum);
-    	tv.setText(Order.getSum());
-    	
     	if (Order.getSize() == 0) {
     		LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
     		if (tll != null) {
     			tll.removeAllViews();
     			ltInflatter.inflate(R.layout.main_order_empty, tll);
     		}
+    	} else if (Order.getSize() > 0 && tv == null) {
+    		LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
+    		tll.removeAllViews();
+    		View w = ltInflatter.inflate(R.layout.main_order_complete, tll, false);
+    		tv = (TextView) w.findViewById(R.id.order_total_sum);
+    		tll.addView(w);
     	}
+    	
+    	tv = (TextView) findViewById(R.id.order_total_sum);
+    	if (tv != null) tv.setText(Order.getSum());
+    	
+    	
     }
     
     public void onOrderCompleteClick(View v) {
@@ -322,16 +327,26 @@ public class CafeMenuActivity extends Activity {
     
     @Override
     protected Dialog onCreateDialog(int id, Bundle params) {
-    	AlertDialog.Builder adb = new AlertDialog.Builder(this);
     	switch(id) {
     	case DIALOG_ORDER_REMOVE:
-    		adb.setTitle(R.string.dialog_remove_title);
-    		return adb.create();
+    		return null;
     	case DIALOG_ORDER_ADD:
-    		OrderDialog dialog = new OrderDialog(this, (Dish)dialogObject);
-    		return dialog.draw();
+    		orderDialog = new OrderDialog(this, (Dish)dialogObject);
+    		return orderDialog.draw();
     	default:
     		return null;
+    	}
+    }
+    
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+    	switch(id) {
+    	case DIALOG_ORDER_ADD:
+    		orderDialog.setDish((Dish)dialogObject);
+    		LinearLayout view = (LinearLayout) dialog.getWindow().findViewById(R.id.dialog_root);
+    		orderDialog.updateView(view);
+    	default:
+    		break;
     	}
     }
 

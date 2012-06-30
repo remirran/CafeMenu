@@ -6,6 +6,7 @@ import com.remirran.digitalmenu.data.Order;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,15 +37,26 @@ public class OrderDialog {
 		adb.setTitle(R.string.dialog_add_title);
 		view = (LinearLayout) linf.inflate(R.layout.order_dialog_add, null);
 		adb.setView(view);
+		adb.setPositiveButton(R.string.add, completeListener);
+		adb.setNegativeButton(R.string.remove, completeListener);
+		return adb.create();
+	}
+	
+	public void setDish(Dish dish) {
+		this.dish = dish;
+		this.count = Order.getCount(dish);
+		if (count == 0) {
+			count = 1;
+		}
+	}
+	
+	public void updateView(View view) {
 		((TextView) view.findViewById(R.id.dialog_name)).setText(dish.getName());
 		((TextView) view.findViewById(R.id.dialog_price)).setText(getSum());
 		((MenuImage) view.findViewById(R.id.dialog_img)).assign(dish);
 		((TextView) view.findViewById(R.id.dialog_count)).setText(count.toString());
-		
 		((ImageButton) view.findViewById(R.id.dialog_inc)).setOnClickListener(chgCount);
 		((ImageButton) view.findViewById(R.id.dialog_dec)).setOnClickListener(chgCount);
-		
-		return adb.create();
 	}
 	
 	private String getSum() {
@@ -61,6 +73,7 @@ public class OrderDialog {
 				break;
 			case R.id.dialog_dec:
 				count--;
+				if (count < 1) count = 1;
 				break;
 			}
 			((TextView) view.findViewById(R.id.dialog_count)).setText(count.toString());
@@ -76,5 +89,16 @@ public class OrderDialog {
 			/*TODO: close dialog and force update orders list*/
 			
 		}
+	};
+	
+	android.content.DialogInterface.OnClickListener completeListener = new android.content.DialogInterface.OnClickListener() {
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			if (which == Dialog.BUTTON_POSITIVE) Order.setCount(dish, count);
+			if (which == Dialog.BUTTON_NEGATIVE) Order.remove(dish);
+			((CafeMenuActivity) ctx).updateOrderDetails();
+		}
+		
 	};
 }

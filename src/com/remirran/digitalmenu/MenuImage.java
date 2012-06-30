@@ -20,6 +20,7 @@ import android.widget.ImageView;
 public class MenuImage extends ImageView {
 	private Dish product;
 	private static final int RADIUS = 20;
+	private int maxLtWidth = 0;
 
 	public MenuImage(Context context) {
 		super(context);
@@ -42,6 +43,23 @@ public class MenuImage extends ImageView {
 	
 	public Dish getProduct() {
 		return product;
+	}
+	
+	public void setMaxLtWidth(int maxLtWidth) {
+		this.maxLtWidth = maxLtWidth;
+	}
+	
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		// TODO Auto-generated method stub
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		
+		int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
+		int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
+		
+		if (maxLtWidth != 0 && maxLtWidth < parentWidth)
+			parentWidth = maxLtWidth;
+		this.setMeasuredDimension(parentWidth, parentHeight);
 	}
 	
 	@Override

@@ -2,46 +2,47 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/dialog_root"
     android:orientation="vertical" >
     <TextView android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/dialog_name"
-        android:textSize="24sp"/>
+        android:textSize="36sp"
+        android:gravity="center_horizontal"/>
     <com.remirran.digitalmenu.MenuImage
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="550dip"
+        android:layout_height="400dip"
         android:contentDescription="@string/main_text_img_desc"
         android:id="@+id/dialog_img"/>
 	<LinearLayout 
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:orientation="horizontal">
-	    <ImageButton android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:src="@drawable/minus"
-	        android:id="@+id/dialog_inc"
-	        android:contentDescription="@string/add"/>
-	    <TextView android:layout_height="fill_parent"
-	        android:layout_width="wrap_content"
-	        android:id="@+id/dialog_count"
-	        android:textSize="32sp"/>
-	    <ImageButton android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:contentDescription="@string/remove"
-	        android:id="@+id/dialog_dec"
-	        android:src="@drawable/plus"/>
-	    <LinearLayout 
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:orientation="vertical">
+			<ImageButton android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="@drawable/minus"
+				android:id="@+id/dialog_dec"
+				android:layout_gravity="center_vertical"
+				android:contentDescription="@string/add"/>
+			<TextView
+				android:id="@+id/dialog_count"
+				android:layout_width="48dip"
+				android:layout_height="wrap_content"
+				android:gravity="center_horizontal"
+				android:layout_gravity="center_vertical"
+				android:textSize="32sp" />
+			<ImageButton
+				android:id="@+id/dialog_inc"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="@drawable/plus"
+				android:layout_gravity="center_vertical"
+				android:contentDescription="@string/remove" />
 	        <TextView android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
 	            android:id="@+id/dialog_price"
-	            android:textSize="24sp"/>
-	        <TextView android:layout_width="fill_parent"
-	            android:layout_height="wrap_content"
-	            android:text="@string/add"
-	            style="@style/DigitalMenu.Main.DefaultButton"/>
-	    </LinearLayout>
+	            android:textSize="24sp"
+	            android:layout_gravity="center_vertical"
+	            android:gravity="right"/>
 	</LinearLayout>
 </LinearLayout>

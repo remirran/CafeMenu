@@ -86,6 +86,16 @@ public class Order {
 		}
 		calc();
 	}
+	public static void remove(Dish d) {
+		synchronized (list) {
+			Iterator<Pair> itr = list.iterator();
+			while (itr.hasNext()) {
+				if (itr.next().equals(d))
+					itr.remove();
+			}
+		}
+		calc();
+	}
 	public void clear() {
 		list.clear();
 		sum = 0;
