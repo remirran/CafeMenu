@@ -36,6 +36,10 @@
     <string name="order_thanks">Ваш заказ отправлен на кухню. Через пару минут Вам его принесут. А пока Вы можете проверить почту, почитать новости, посмотреть фильм или сыграть в игры</string>
     
     <string name="dialog_remove_title">Удалить блюдо?</string>
+    <string name="dialog_add_title">Добавить в заказ</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    
+    <string name="add">Добавить</string>
+    <string name="remove">Удалить</string>
 </resources>

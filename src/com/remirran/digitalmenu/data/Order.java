@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Order {
+	private static Order me = null;
 	private class Pair {
 		private Dish dish;
 		private int count;
@@ -20,6 +21,9 @@ public class Order {
 		public int getCount() {
 			return count;
 		}
+		public void setCount(int count) {
+			this.count = count;
+		}
 		public int getSum() {
 			return dish.getPrice() * count;
 		}
@@ -31,23 +35,48 @@ public class Order {
 	private static ArrayList<Pair> list = new ArrayList<Order.Pair>();
 	private static int sum;
 	
-	private Pair search(Dish d) {
-		Iterator<Pair> itr = list.iterator();
-		while (itr.hasNext()) {
-			Pair elem = itr.next();
-			if (elem.equals(d)) return elem;
+	private static Pair search(Dish d) {
+		synchronized (list) {
+			Iterator<Pair> itr = list.iterator();
+			while (itr.hasNext()) {
+				Pair elem = itr.next();
+				if (elem.equals(d)) return elem;
+			}
+			return null;
 		}
-		return null;
+	}
+	
+	public static Order getOrder() {
+		if (me == null) me = new Order();
+		return me;
+	}
+	
+	public static Integer getCount(Dish d) {
+		Pair p = search(d);
+		if (p == null) return 0;
+		return p.getCount();
+	}
+	
+	public static void setCount(Dish d, Integer c) {
+		Pair p = search(d);
+		if (p == null) {
+			p = me.new Pair(d);
+			synchronized (list) {
+				list.add(p);
+			}
+		}
+		p.setCount(c);
+		calc();
 	}
 	
 	public void inc(Dish d) {
-		synchronized (list) {
-			Pair pair = search(d);
-			if (pair == null) {
+		Pair pair = search(d);
+		if (pair == null) {
+			synchronized (list) {
 				list.add(new Pair(d));
-			} else {
-				pair.inc();
 			}
+		} else {
+			pair.inc();
 		}
 		calc();
 	}
@@ -72,7 +101,7 @@ public class Order {
 			}
 		}
 	}
-	public static int getCount() {
+	public static int getSize() {
 		return list.size();
 	}
 	public static Dish getItemByIndex(int pos) {

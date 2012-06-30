@@ -2,7 +2,7 @@ package com.remirran.digitalmenu.data;
 
 public class Dish extends Section {
 	private String tDesc;
-	private int tPrice;
+	private Integer tPrice;
 	
 	private boolean tAvailFlag;
 	
@@ -12,7 +12,7 @@ public class Dish extends Section {
 	public void setDesc(String tDesc) {
 		this.tDesc = tDesc;
 	}
-	public int getPrice() {
+	public Integer getPrice() {
 		return tPrice;
 	}
 	public void setPrice(int tPrice) {

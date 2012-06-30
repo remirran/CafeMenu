@@ -23,26 +23,31 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
 	/* Constants */
 	private final int REQ_CODE_TABLE_ID = 1;
 	private final String LOG_TAG = "CafeMenuActivity";
-	public int DIALOG_ORDER_REMOVE = 1;
+	public static final int DIALOG_ORDER_REMOVE = 1;
+	public static final int DIALOG_ORDER_ADD = 2;
 	/* Tools */
 	private ExtData eData;
 	private static LayoutInflater ltInflatter;
 	private static Handler hl;
 	/* Order */
-	private static final Order order = new Order();
+	private static final Order order = Order.getOrder();
 	private static OrderAdapter orderAdapter;
+	private Object dialogObject = null;
 	/*Main window state save*/
 	private static View save = null;
 	
@@ -171,7 +176,7 @@ public class CafeMenuActivity extends Activity {
             tLstLayout.setAdapter(orderAdapter);
             
             /*Reset order if req*/
-        	if (Order.getCount() == 0) {
+        	if (Order.getSize() == 0) {
         		tll = (LinearLayout) findViewById(R.id.main_text_confirm);
         		if (tll != null) {
         			tll.removeAllViews();
@@ -236,7 +241,12 @@ public class CafeMenuActivity extends Activity {
     	}
     }
     
-    public void onTableImageClick (View v) {
+    public void onTableImageClick(View v) {
+    	dialogObject = ((MenuImage)v).getProduct();
+    	showDialog(DIALOG_ORDER_ADD);
+    }
+    
+    public void onTableImageButtonClick (View v) {
     	order.inc(((MenuImage)v).getProduct());
     	orderAdapter.notifyDataSetChanged();
     	
@@ -266,7 +276,7 @@ public class CafeMenuActivity extends Activity {
     	TextView tv = (TextView) findViewById(R.id.order_total_sum);
     	tv.setText(Order.getSum());
     	
-    	if (Order.getCount() == 0) {
+    	if (Order.getSize() == 0) {
     		LinearLayout tll = (LinearLayout) findViewById(R.id.main_text_confirm);
     		if (tll != null) {
     			tll.removeAllViews();
@@ -312,12 +322,17 @@ public class CafeMenuActivity extends Activity {
     
     @Override
     protected Dialog onCreateDialog(int id, Bundle params) {
-    	if (id == DIALOG_ORDER_REMOVE) {
-    		AlertDialog.Builder adb = new AlertDialog.Builder(this);
+    	AlertDialog.Builder adb = new AlertDialog.Builder(this);
+    	switch(id) {
+    	case DIALOG_ORDER_REMOVE:
     		adb.setTitle(R.string.dialog_remove_title);
     		return adb.create();
+    	case DIALOG_ORDER_ADD:
+    		OrderDialog dialog = new OrderDialog(this, (Dish)dialogObject);
+    		return dialog.draw();
+    	default:
+    		return null;
     	}
-    	return null;
     }
 
 }

@@ -25,7 +25,7 @@ public class OrderAdapter extends BaseAdapter {
 	
 	@Override
 	public int getCount() {
-		return Order.getCount();
+		return Order.getSize();
 	}
 
 	@Override
