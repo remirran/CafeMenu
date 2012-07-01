@@ -1,7 +1,9 @@
 package com.remirran.digitalmenu;
 
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -28,6 +30,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
@@ -71,6 +74,15 @@ public class CafeMenuActivity extends Activity {
         tLstLayout.setAdapter(orderAdapter);
         tLstLayout.setOnItemClickListener(orderListener);
     }
+	
+	public String formatRub(String arg) {
+		final StringBuilder sbuilder = new StringBuilder();
+		final Formatter fmt = new Formatter(sbuilder, Locale.getDefault());
+		
+		sbuilder.delete(0, sbuilder.length());
+		fmt.format(getString(R.string.price_format), arg);
+		return fmt.toString();
+	}
 	
 	public void applyDownloadedInfo() {
         /* Fill titles*/
@@ -122,6 +134,13 @@ public class CafeMenuActivity extends Activity {
                 	MenuImage tImg = (MenuImage) tView.findViewById(R.id.main_table_img);
                 	tImg.setMaxLtWidth(tTableLayout.getMeasuredWidth() / 2);
                 	tImg.assign(dishes.elementAt(i));
+                	LinearLayout tll = (LinearLayout) tView.findViewById(R.id.main_table_item_desc);
+                	LayoutParams tllpar = (LayoutParams) tll.getLayoutParams();
+                	tllpar.width = tTableLayout.getMeasuredWidth() / 2;
+                	TextView tv = (TextView) tView.findViewById(R.id.main_table_name);
+                	tv.setText(dishes.elementAt(i).getName());
+                	tv = (TextView) tView.findViewById(R.id.main_table_price);
+                	tv.setText(formatRub(dishes.elementAt(i).getPrice().toString()));
                 	tTableRows[i%2].addView(tView);
                 }
             }catch (NullPointerException e) {
@@ -285,7 +304,7 @@ public class CafeMenuActivity extends Activity {
     	}
     	
     	tv = (TextView) findViewById(R.id.order_total_sum);
-    	if (tv != null) tv.setText(Order.getSum());
+    	if (tv != null) tv.setText(formatRub(Order.getSum()));
     	
     	
     }
@@ -343,8 +362,7 @@ public class CafeMenuActivity extends Activity {
     	switch(id) {
     	case DIALOG_ORDER_ADD:
     		orderDialog.setDish((Dish)dialogObject);
-    		LinearLayout view = (LinearLayout) dialog.getWindow().findViewById(R.id.dialog_root);
-    		orderDialog.updateView(view);
+    		orderDialog.updateDialog(dialog);
     	default:
     		break;
     	}

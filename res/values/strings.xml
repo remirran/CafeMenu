@@ -41,5 +41,9 @@
     <string name="no">Нет</string>
     
     <string name="add">Добавить</string>
-    <string name="remove">Удалить</string>
+    <string name="change">Изменить</string>
+    <string name="not_modify">Не добавлять</string>
+    <string name="remove">Удалить из заказа</string>
+    
+    <string name="price_format" formatted="false">%s руб</string>
 </resources>

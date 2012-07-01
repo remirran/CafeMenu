@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,7 +39,7 @@ public class OrderDialog {
 		view = (LinearLayout) linf.inflate(R.layout.order_dialog_add, null);
 		adb.setView(view);
 		adb.setPositiveButton(R.string.add, completeListener);
-		adb.setNegativeButton(R.string.remove, completeListener);
+		adb.setNegativeButton(R.string.not_modify, completeListener);
 		return adb.create();
 	}
 	
@@ -52,11 +53,27 @@ public class OrderDialog {
 	
 	public void updateView(View view) {
 		((TextView) view.findViewById(R.id.dialog_name)).setText(dish.getName());
-		((TextView) view.findViewById(R.id.dialog_price)).setText(getSum());
+		((TextView) view.findViewById(R.id.dialog_price)).setText(((CafeMenuActivity) ctx).formatRub(getSum()));
 		((MenuImage) view.findViewById(R.id.dialog_img)).assign(dish);
 		((TextView) view.findViewById(R.id.dialog_count)).setText(count.toString());
 		((ImageButton) view.findViewById(R.id.dialog_inc)).setOnClickListener(chgCount);
 		((ImageButton) view.findViewById(R.id.dialog_dec)).setOnClickListener(chgCount);
+	}
+	
+	public void updateDialog(Dialog dialog) {
+		LinearLayout view = (LinearLayout) dialog.getWindow().findViewById(R.id.dialog_root);
+		updateView(view);
+		if (count == 1) {
+			Button button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_POSITIVE);
+			button.setText(R.string.add);
+			button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_NEGATIVE);
+			button.setText(R.string.not_modify);
+		} else {
+			Button button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_POSITIVE);
+			button.setText(R.string.change);
+			button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_NEGATIVE);
+			button.setText(R.string.remove);
+		}
 	}
 	
 	private String getSum() {
@@ -77,17 +94,7 @@ public class OrderDialog {
 				break;
 			}
 			((TextView) view.findViewById(R.id.dialog_count)).setText(count.toString());
-			((TextView) view.findViewById(R.id.dialog_price)).setText(getSum());
-		}
-	};
-	
-	OnClickListener addClickListener = new OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			Order.setCount(dish, count);
-			/*TODO: close dialog and force update orders list*/
-			
+			((TextView) view.findViewById(R.id.dialog_price)).setText(((CafeMenuActivity) ctx).formatRub(getSum()));
 		}
 	};
 	
