@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import com.HorizontalPager.dynamicPaging.HorizontalPager;
 import com.remirran.digitalmenu.data.Dish;
 import com.remirran.digitalmenu.data.ExtData;
 import com.remirran.digitalmenu.data.Order;
@@ -114,27 +115,41 @@ public class CafeMenuActivity extends Activity {
         	
         	/* Start drawing */
         	LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
-            View tView = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
+            View tTable = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
             
-            /* Fill table */
-            LinearLayout tTableRows[] = { (LinearLayout) tView.findViewById(R.id.main_table_row1), 
-            		(LinearLayout) tView.findViewById(R.id.main_table_row2) };
+            HorizontalPager tPager = (HorizontalPager) tTable.findViewById(R.id.table_pager); 
+            tPager.removeAllViews();
+            
+            
+            LinearLayout tTableRows[] = new LinearLayout[2];
+            View tElem;
             Vector<Dish> dishes = eData.getDishesBySection((Section)parent.getAdapter().getItem(position));
+            /* Fill table */
             try {
             	for (int i = 0; i < dishes.size(); i++ ) {
-                	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
-                	RelativeLayout tll = (RelativeLayout) tView.findViewById(R.id.main_table_item);
+            		if ( i % 4 == 0 ) {
+            			/*Add new page*/
+            			View tScreen = ltInflatter.inflate(R.layout.main_table_screen, tPager, false);
+            			
+            			tTableRows[0] = (LinearLayout) tScreen.findViewById(R.id.main_table_row1); 
+            			tTableRows[1] = (LinearLayout) tScreen.findViewById(R.id.main_table_row2);
+            			
+            			tPager.addView(tScreen);
+            		}
+            		/*Add new element*/
+                	tElem = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
+                	RelativeLayout tll = (RelativeLayout) tElem.findViewById(R.id.main_table_item);
                 	LayoutParams tllpar = (LayoutParams) tll.getLayoutParams();
                 	tllpar.width = tTableLayout.getMeasuredWidth() / 2;
-                	MenuImage tImg = (MenuImage) tView.findViewById(R.id.main_table_img);
+                	MenuImage tImg = (MenuImage) tElem.findViewById(R.id.main_table_img);
                 	tImg.assign(dishes.elementAt(i));
-                	TextView tv = (TextView) tView.findViewById(R.id.main_table_name);
+                	TextView tv = (TextView) tElem.findViewById(R.id.main_table_name);
                 	tv.setText(dishes.elementAt(i).getName());
-                	tv = (TextView) tView.findViewById(R.id.main_table_price);
+                	tv = (TextView) tElem.findViewById(R.id.main_table_price);
                 	tv.setText(Tools.formatCurrency(CafeMenuActivity.this, dishes.elementAt(i).getPrice().toString()));
-                	Button addButton = (Button) tView.findViewById(R.id.main_table_item_add_button);
+                	Button addButton = (Button) tElem.findViewById(R.id.main_table_item_add_button);
                 	addButton.setTag(dishes.elementAt(i));
-                	tTableRows[i%2].addView(tView);
+                	tTableRows[i%2].addView(tElem);
                 }
             }catch (NullPointerException e) {
             	/*TODO: show something else, case of no dishes*/

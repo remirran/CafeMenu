@@ -1,26 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_htable_layout"
+<com.HorizontalPager.dynamicPaging.HorizontalPager xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="0dp"
     android:layout_weight="3"
 	android:layout_height="fill_parent"
+	android:id="@+id/table_pager"
 	android:scrollbarFadeDuration="0">
-	<LinearLayout 
-	    android:orientation="vertical"
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:layout_width="wrap_content"
-	    android:weightSum="2">
-		<LinearLayout 
-			android:id="@+id/main_table_row1"
-			android:layout_width="wrap_content"
-			android:layout_height="0dp"
-			android:layout_weight="1">
-		</LinearLayout>	
-		<LinearLayout 
-			android:id="@+id/main_table_row2"
-		    android:layout_width="wrap_content"
-		 	android:layout_height="0dp"
-			android:layout_weight="1">
-		</LinearLayout>
+	    android:id="@+id/fake_content">
 	</LinearLayout>
-</HorizontalScrollView>
+</com.HorizontalPager.dynamicPaging.HorizontalPager>
