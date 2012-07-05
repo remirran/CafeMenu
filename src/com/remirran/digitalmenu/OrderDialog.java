@@ -2,6 +2,7 @@ package com.remirran.digitalmenu;
 
 import com.remirran.digitalmenu.data.Dish;
 import com.remirran.digitalmenu.data.Order;
+import com.remirran.digitalmenu.data.Tools;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -53,7 +54,7 @@ public class OrderDialog {
 	
 	public void updateView(View view) {
 		((TextView) view.findViewById(R.id.dialog_name)).setText(dish.getName());
-		((TextView) view.findViewById(R.id.dialog_price)).setText(((CafeMenuActivity) ctx).formatRub(getSum()));
+		((TextView) view.findViewById(R.id.dialog_price)).setText(Tools.formatCurrency(ctx, getSum()));
 		((MenuImage) view.findViewById(R.id.dialog_img)).assign(dish);
 		((TextView) view.findViewById(R.id.dialog_count)).setText(count.toString());
 		((ImageButton) view.findViewById(R.id.dialog_inc)).setOnClickListener(chgCount);
@@ -63,7 +64,7 @@ public class OrderDialog {
 	public void updateDialog(Dialog dialog) {
 		LinearLayout view = (LinearLayout) dialog.getWindow().findViewById(R.id.dialog_root);
 		updateView(view);
-		if (count == 1) {
+		if (Order.getCount(dish) == 0) {
 			Button button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_POSITIVE);
 			button.setText(R.string.add);
 			button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_NEGATIVE);
@@ -94,7 +95,7 @@ public class OrderDialog {
 				break;
 			}
 			((TextView) view.findViewById(R.id.dialog_count)).setText(count.toString());
-			((TextView) view.findViewById(R.id.dialog_price)).setText(((CafeMenuActivity) ctx).formatRub(getSum()));
+			((TextView) view.findViewById(R.id.dialog_price)).setText(Tools.formatCurrency(ctx, getSum()));
 		}
 	};
 	

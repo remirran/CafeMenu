@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
+    android:id="@+id/main_table_item"
     android:layout_height="fill_parent">
 	<com.remirran.digitalmenu.MenuImage 
         android:id="@+id/main_table_img" 
@@ -16,14 +17,16 @@
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentRight="true"
-	    android:background="#70cccccc"
-	    android:id="@+id/main_table_item_desc"
-	    android:weightSum="9">
+	    android:background="@drawable/table_img_bottom_corners"
+	    android:gravity="center_vertical"
+	    android:weightSum="9"
+	    android:minHeight="65dip">
 	    <TextView android:layout_width="0dp"
 	        android:layout_height="wrap_content"
 	        android:id="@+id/main_table_name"
 	        android:textSize="24sp"
 	        android:textColor="#000000"
+	        android:paddingLeft="4dip"
 	        android:layout_gravity="center"
 	        android:layout_weight="5"/>
 	    <TextView android:layout_width="0dp"
@@ -38,6 +41,11 @@
 	        android:layout_height="wrap_content"
 	        android:text="@string/add"
 	        android:layout_weight="2"
-	        android:layout_gravity="center"/>
+	        android:layout_marginRight="7dip"
+	        android:gravity="center"
+	        android:id="@+id/main_table_item_add_button"
+	        android:onClick="onTableImageButtonClick"
+	        android:inputType="text|textNoSuggestions"
+	        android:layout_gravity="center_vertical"/>
 	</LinearLayout>
 </RelativeLayout>

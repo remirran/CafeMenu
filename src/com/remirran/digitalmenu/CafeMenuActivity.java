@@ -11,6 +11,7 @@ import com.remirran.digitalmenu.data.Dish;
 import com.remirran.digitalmenu.data.ExtData;
 import com.remirran.digitalmenu.data.Order;
 import com.remirran.digitalmenu.data.Section;
+import com.remirran.digitalmenu.data.Tools;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -29,8 +30,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
-import android.widget.RelativeLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class CafeMenuActivity extends Activity {
@@ -75,15 +77,6 @@ public class CafeMenuActivity extends Activity {
         tLstLayout.setOnItemClickListener(orderListener);
     }
 	
-	public String formatRub(String arg) {
-		final StringBuilder sbuilder = new StringBuilder();
-		final Formatter fmt = new Formatter(sbuilder, Locale.getDefault());
-		
-		sbuilder.delete(0, sbuilder.length());
-		fmt.format(getString(R.string.price_format), arg);
-		return fmt.toString();
-	}
-	
 	public void applyDownloadedInfo() {
         /* Fill titles*/
         LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
@@ -117,7 +110,6 @@ public class CafeMenuActivity extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			/*TODO: move to a function*/
         	mainDataClear();
         	
         	/* Start drawing */
@@ -131,16 +123,17 @@ public class CafeMenuActivity extends Activity {
             try {
             	for (int i = 0; i < dishes.size(); i++ ) {
                 	tView = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
-                	MenuImage tImg = (MenuImage) tView.findViewById(R.id.main_table_img);
-                	tImg.setMaxLtWidth(tTableLayout.getMeasuredWidth() / 2);
-                	tImg.assign(dishes.elementAt(i));
-                	LinearLayout tll = (LinearLayout) tView.findViewById(R.id.main_table_item_desc);
+                	RelativeLayout tll = (RelativeLayout) tView.findViewById(R.id.main_table_item);
                 	LayoutParams tllpar = (LayoutParams) tll.getLayoutParams();
                 	tllpar.width = tTableLayout.getMeasuredWidth() / 2;
+                	MenuImage tImg = (MenuImage) tView.findViewById(R.id.main_table_img);
+                	tImg.assign(dishes.elementAt(i));
                 	TextView tv = (TextView) tView.findViewById(R.id.main_table_name);
                 	tv.setText(dishes.elementAt(i).getName());
                 	tv = (TextView) tView.findViewById(R.id.main_table_price);
-                	tv.setText(formatRub(dishes.elementAt(i).getPrice().toString()));
+                	tv.setText(Tools.formatCurrency(CafeMenuActivity.this, dishes.elementAt(i).getPrice().toString()));
+                	Button addButton = (Button) tView.findViewById(R.id.main_table_item_add_button);
+                	addButton.setTag(dishes.elementAt(i));
                 	tTableRows[i%2].addView(tView);
                 }
             }catch (NullPointerException e) {
@@ -276,7 +269,7 @@ public class CafeMenuActivity extends Activity {
     }
     
     public void onTableImageButtonClick (View v) {
-    	order.inc(((MenuImage)v).getProduct());
+    	order.inc((Dish) ((Button)v).getTag());
     	updateOrderDetails();
     }
   
@@ -304,7 +297,7 @@ public class CafeMenuActivity extends Activity {
     	}
     	
     	tv = (TextView) findViewById(R.id.order_total_sum);
-    	if (tv != null) tv.setText(formatRub(Order.getSum()));
+    	if (tv != null) tv.setText(Tools.formatCurrency(this, Order.getSum()));
     	
     	
     }
@@ -328,11 +321,12 @@ public class CafeMenuActivity extends Activity {
 		
 		/*Set sum*/
 		TextView tv = (TextView) findViewById(R.id.order_total_sum);
-		tv.setText(Order.getSum());
+		tv.setText(Tools.formatCurrency(this, Order.getSum()));
 		
 		/*Assign adapter*/
 		ListView tLstLayout = (ListView) tll.findViewById(R.id.main_order_layout);
         tLstLayout.setAdapter(orderAdapter);
+        tLstLayout.setOnItemClickListener(orderListener);
     	
     }
     

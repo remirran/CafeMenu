@@ -1,6 +1,7 @@
 package com.remirran.digitalmenu;
 
 import com.remirran.digitalmenu.data.Order;
+import com.remirran.digitalmenu.data.Tools;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -44,7 +45,7 @@ public class OrderAdapter extends BaseAdapter {
 		
 		((TextView) view.findViewById(R.id.order_name)).setText(Order.getItemByIndex(position).getName());
 		((TextView) view.findViewById(R.id.order_count)).setText("x"+Order.getCountByIndex(position)+"=");
-		((TextView) view.findViewById(R.id.order_price)).setText(Order.getSumByIndex(position));
+		((TextView) view.findViewById(R.id.order_price)).setText(Tools.formatCurrency(ctx, Order.getSumByIndex(position)));
 		ImageView iv = (ImageView) view.findViewById(R.id.order_cancel);
 		iv.setOnClickListener(imgRemoveClickListener);
 		iv.setTag(position);
