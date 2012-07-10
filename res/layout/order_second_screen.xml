@@ -8,6 +8,7 @@
     <LinearLayout android:layout_height="fill_parent"
         android:layout_width="0dp"
         android:layout_weight="1"
+        android:background="@drawable/background_order_complete_left"
         android:orientation="vertical">
         <ImageView android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -35,22 +36,30 @@
             android:paddingBottom="5dp"
             android:text="@string/order_complete_left4"/>
     </LinearLayout>
-	<LinearLayout android:layout_width="0dp"
+	<RelativeLayout android:layout_width="0dp"
 	    android:layout_weight="3"
 	    android:layout_height="fill_parent"
 	    android:orientation="vertical"
+	    android:background="@drawable/background_order_complete_rigth"
 	    android:id="@+id/order_second_screen">
 	    <TextView android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content"
 	    	style="@style/DigitalMenu.Main.DefaultButton"
+	    	android:background="@drawable/button_confirm_large"
+	    	android:id="@+id/order_button_confirm_large"
+	    	android:layout_alignParentTop="true"
 	    	android:text="@string/order_complete_title"/>
 	    <ListView android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
+	        android:layout_above="@+id/order_second_sum_ll"
+	        android:layout_below="@+id/order_button_confirm_large"
 	        android:id="@+id/main_order_layout">
 	    </ListView>
 	    <LinearLayout android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:gravity="right">
+	        android:gravity="right"
+	        android:id="@+id/order_second_sum_ll"
+	        android:layout_above="@+id/order_send_button">
 	        <TextView android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/order_sum"
@@ -65,7 +74,9 @@
 			android:layout_width="wrap_content"
 			android:text="@string/order_send"
 			android:onClick="onOrderSendClick"
+			android:layout_alignParentBottom="true"
+			android:id="@+id/order_send_button"
 			style="@style/DigitalMenu.Main.DefaultButton"
 			android:layout_gravity="right"/>
-	</LinearLayout>
+	</RelativeLayout>
 </LinearLayout>

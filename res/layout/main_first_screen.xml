@@ -13,8 +13,6 @@
 				android:id="@+id/main_list_layout"				
 	  			android:layout_height="fill_parent"
 	  			android:layout_width="fill_parent"
-	  			android:scrollbarStyle="outsideInset"
-	  			android:scrollbarFadeDuration="0"
 	  			android:layout_alignParentTop="true"
 	  			android:layout_above="@+id/main_text_confirm"
 	  			android:orientation="vertical">

@@ -2,14 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#ffffff"
     android:id="@+id/main"
     android:orientation="vertical" >
 	<LinearLayout 
 	    android:id="@+id/main_title_layout"
 	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:background="#555555"
-	    android:padding="3dp">
+	    android:layout_height="wrap_content">
 	</LinearLayout>
 	<LinearLayout 
 	    android:layout_width="fill_parent"
@@ -25,8 +24,6 @@
 				android:id="@+id/main_list_layout"				
 	   			android:layout_height="fill_parent"
 	   			android:layout_width="fill_parent"
-	   			android:scrollbarStyle="outsideInset"
-	   			android:scrollbarFadeDuration="0"
 	   			android:layout_alignParentTop="true"
 	   			android:layout_above="@+id/main_text_confirm"
 	   			android:orientation="vertical">
@@ -35,6 +32,7 @@
 				android:id="@+id/main_order_layout"				
 	   			android:layout_height="wrap_content"
 	   			android:layout_width="fill_parent"
+	   			android:background="@drawable/background_order_list"
 	   			android:layout_alignParentBottom="true"
 	   			android:layout_below="@+id/main_text_confirm"
 	   			android:orientation="vertical">

@@ -30,7 +30,7 @@
             android:gravity="center"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:background="@drawable/table_img_round_corners"/>
+            android:background="@android:drawable/editbox_background"/>
     </LinearLayout>
     <LinearLayout 
 	    android:layout_width="fill_parent"

@@ -15,6 +15,7 @@ import android.widget.TextView;
 public class SubAdapter extends BaseAdapter {
 	private Vector<Section> data;
 	private LayoutInflater linf;
+	private View activeSectionView;
 
 	@Override
 	public int getCount() {
@@ -45,5 +46,13 @@ public class SubAdapter extends BaseAdapter {
 	public SubAdapter(Context ctx, Vector<Section> data) {
 		this.data = data;
 		linf = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+	
+	public void setActiveItem(View v) {
+		if (activeSectionView != null) {
+			((TextView) activeSectionView).setBackgroundResource(R.drawable.button_title);
+		}
+		((TextView) v).setBackgroundResource(R.drawable.button_title_pressed);
+		activeSectionView = v;
 	}
 }

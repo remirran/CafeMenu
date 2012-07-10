@@ -20,7 +20,6 @@
         android:gravity="center"
         android:textColor="#ffffff"
         android:textSize="40sp"
-        android:background="@drawable/enter_text_background"
+        android:background="@drawable/background_enter_text"
         android:text="@string/title_img_entrance" /> 
-
 </RelativeLayout>

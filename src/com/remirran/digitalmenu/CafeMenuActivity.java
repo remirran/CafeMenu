@@ -1,9 +1,7 @@
 package com.remirran.digitalmenu;
 
 import java.util.Collections;
-import java.util.Formatter;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -105,27 +103,33 @@ public class CafeMenuActivity extends Activity {
         /* TODO: remove this */
         //((TextView) v).setBackgroundColor(Color.parseColor("#cccccc"));
 	}
-	
+
 	private OnItemClickListener subsListener = new OnItemClickListener() {
 
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
+			Vector<Dish> dishes = eData.getDishesBySection((Section)parent.getAdapter().getItem(position));
+
+			/*TODO no idea what to show in case of empty set*/
+			if (dishes == null || dishes.isEmpty()) return;
+
         	mainDataClear();
         	
         	/* Start drawing */
         	LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
             View tTable = ltInflatter.inflate(R.layout.main_table, tTableLayout, true);
             
-            HorizontalPager tPager = (HorizontalPager) tTable.findViewById(R.id.table_pager); 
-            tPager.removeAllViews();
             
-            
-            LinearLayout tTableRows[] = new LinearLayout[2];
-            View tElem;
-            Vector<Dish> dishes = eData.getDishesBySection((Section)parent.getAdapter().getItem(position));
-            /* Fill table */
             try {
+            	HorizontalPager tPager = (HorizontalPager) tTable.findViewById(R.id.table_pager); 
+                tPager.removeAllViews();
+                
+                LinearLayout tTableRows[] = new LinearLayout[2];
+                View tElem;
+                
+                /* Fill table */
+
             	for (int i = 0; i < dishes.size(); i++ ) {
             		if ( i % 4 == 0 ) {
             			/*Add new page*/
@@ -154,6 +158,8 @@ public class CafeMenuActivity extends Activity {
             }catch (NullPointerException e) {
             	/*TODO: show something else, case of no dishes*/
             }
+            
+            ((SubAdapter)parent.getAdapter()).setActiveItem(view);
 		}
 	};
 	
@@ -172,11 +178,10 @@ public class CafeMenuActivity extends Activity {
 		try {
 			LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
 			((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
-		    ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.menu_button_common);
+		    ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.button_title);
 		    tTtlLayout.removeView(v);
 		    ((Button)v).setTextColor(Color.parseColor("#000000"));
-		    ((Button)v).setBackgroundResource(R.drawable.table_img_round_corners);
-		    ((Button)v).setBackgroundResource(R.drawable.menu_button_active);
+		    ((Button)v).setBackgroundResource(R.drawable.button_title_pressed);
 		    tTtlLayout.addView(v, 0);
 		    tTtlLayout.requestLayout();
 		} catch (NullPointerException e) {
@@ -328,7 +333,7 @@ public class CafeMenuActivity extends Activity {
 		try {
 			LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
 			((Button)tTtlLayout.getChildAt(0)).setTextColor(Color.parseColor("#ffffff"));
-		    ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.menu_button_common);
+		    ((Button)tTtlLayout.getChildAt(0)).setBackgroundResource(R.drawable.button_title);
 		    tTtlLayout.requestLayout();
 		} catch (NullPointerException e) {
 			Log.w(LOG_TAG, "No menu buttons", e);
@@ -348,7 +353,7 @@ public class CafeMenuActivity extends Activity {
     public void onOrderSendClick(View v) {
     	/*TODO: Send it on server*/
     	
-    	LinearLayout tll = (LinearLayout) findViewById(R.id.order_second_screen);
+    	RelativeLayout tll = (RelativeLayout) findViewById(R.id.order_second_screen);
     	tll.removeAllViews();
     	ltInflatter.inflate(R.layout.order_thanks, tll);
     }

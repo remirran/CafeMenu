@@ -17,7 +17,7 @@
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentRight="true"
-	    android:background="@drawable/table_img_bottom_corners"
+	    android:background="@drawable/corners_table_img_bottom"
 	    android:gravity="center_vertical"
 	    android:weightSum="9"
 	    android:minHeight="65dip">
@@ -37,15 +37,9 @@
 	        android:gravity="center"
 	        android:layout_gravity="center"
 	        android:layout_weight="2"/>
-	    <Button android:layout_width="0dp"
-	        android:layout_height="wrap_content"
+	    <Button style="@style/DigitalMenu.Main.ButtonAdd"
 	        android:text="@string/add"
-	        android:layout_weight="2"
-	        android:layout_marginRight="7dip"
-	        android:gravity="center"
 	        android:id="@+id/main_table_item_add_button"
-	        android:onClick="onTableImageButtonClick"
-	        android:inputType="text|textNoSuggestions"
-	        android:layout_gravity="center_vertical"/>
+	        android:onClick="onTableImageButtonClick"/>
 	</LinearLayout>
 </RelativeLayout>

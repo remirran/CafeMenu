@@ -27,7 +27,7 @@
 	    android:scaleType="fitCenter"
 	    android:layout_weight="2"
 	    android:contentDescription="@string/main_text_img_desc"
-	    android:src="@drawable/del"/>
+	    android:src="@drawable/button_del"/>
 		<TextView android:layout_width="0dp"
 	    android:layout_weight="1"
 	    android:layout_height="wrap_content"/>

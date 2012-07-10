@@ -24,16 +24,19 @@
             style="@style/DigitalMenu.Main.DefaultButton"/>
     </LinearLayout>
 	<LinearLayout android:layout_width="fill_parent"
-	    android:layout_height="wrap_content">
+	    android:layout_height="wrap_content"
+	    android:background="@drawable/background_order_sum">
 	    <TextView android:layout_height="wrap_content"
 	        android:layout_width="0dp"
 	        android:text="@string/order_sum"
-	         android:layout_gravity="center_horizontal"
+	         android:layout_gravity="center"
+	         android:gravity="center"
 	        android:layout_weight="1"/>
 	    <TextView android:layout_height="wrap_content"
 	        android:layout_width="0dp"
 	        android:layout_weight="1"
-	        android:layout_gravity="center_horizontal"
+	        android:layout_gravity="center"
+	        android:gravity="center"
 	        android:id="@+id/order_total_sum"/>
 	</LinearLayout>
 </LinearLayout>

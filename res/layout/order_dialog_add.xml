@@ -20,7 +20,7 @@
 	    android:orientation="horizontal">
 			<ImageButton android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:background="@drawable/minus"
+				android:background="@drawable/button_minus"
 				android:id="@+id/dialog_dec"
 				android:layout_gravity="center_vertical"
 				android:contentDescription="@string/add"/>
@@ -35,7 +35,7 @@
 				android:id="@+id/dialog_inc"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:background="@drawable/plus"
+				android:background="@drawable/button_plus"
 				android:layout_gravity="center_vertical"
 				android:contentDescription="@string/remove" />
 	        <TextView android:layout_width="fill_parent"

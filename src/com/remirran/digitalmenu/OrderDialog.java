@@ -53,6 +53,7 @@ public class OrderDialog {
 	}
 	
 	public void updateView(View view) {
+		/*TODO: check for null pointer exc*/
 		((TextView) view.findViewById(R.id.dialog_name)).setText(dish.getName());
 		((TextView) view.findViewById(R.id.dialog_price)).setText(Tools.formatCurrency(ctx, getSum()));
 		((MenuImage) view.findViewById(R.id.dialog_img)).assign(dish);
