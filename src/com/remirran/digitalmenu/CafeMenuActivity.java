@@ -160,6 +160,7 @@ public class CafeMenuActivity extends Activity {
             }
             
             ((SubAdapter)parent.getAdapter()).setActiveItem(view);
+            parent.invalidate();
 		}
 	};
 	

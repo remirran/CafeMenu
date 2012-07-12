@@ -41,6 +41,7 @@ public class OrderDialog {
 		adb.setView(view);
 		adb.setPositiveButton(R.string.add, completeListener);
 		adb.setNegativeButton(R.string.not_modify, completeListener);
+		
 		return adb.create();
 	}
 	
@@ -76,6 +77,12 @@ public class OrderDialog {
 			button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_NEGATIVE);
 			button.setText(R.string.remove);
 		}
+		
+		/*TODO: do it once*/
+		Button button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_POSITIVE);
+		button.setBackgroundResource(R.drawable.button_title);
+		button = (Button) ((AlertDialog)dialog).getButton(Dialog.BUTTON_NEGATIVE);
+		button.setBackgroundResource(R.drawable.button_title);
 	}
 	
 	private String getSum() {

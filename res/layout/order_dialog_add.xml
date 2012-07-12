@@ -3,11 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/dialog_root"
+    android:background="#ffffff"
     android:orientation="vertical" >
     <TextView android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/dialog_name"
         android:textSize="36sp"
+        android:textColor="#000000"
         android:gravity="center_horizontal"/>
     <com.remirran.digitalmenu.MenuImage
         android:layout_width="550dip"
@@ -30,6 +32,7 @@
 				android:layout_height="wrap_content"
 				android:gravity="center_horizontal"
 				android:layout_gravity="center_vertical"
+				android:textColor="#000000"
 				android:textSize="32sp" />
 			<ImageButton
 				android:id="@+id/dialog_inc"
@@ -42,7 +45,8 @@
 	            android:layout_height="wrap_content"
 	            android:id="@+id/dialog_price"
 	            android:textSize="24sp"
+	            android:textColor="#000000"
 	            android:layout_gravity="center_vertical"
-	            android:gravity="right"/>
+	            android:gravity="center_vertical|right"/>
 	</LinearLayout>
 </LinearLayout>
