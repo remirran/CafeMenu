@@ -45,7 +45,7 @@
 				<TextView 
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:text="@string/main_text_confirm"
+					android:background="@drawable/button_your_order"
 					style="@style/DigitalMenu.Main.DefaultButton"/>
 			</LinearLayout>
 		</RelativeLayout>
