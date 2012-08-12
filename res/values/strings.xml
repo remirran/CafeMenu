@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DigitalMenu</string>
-    <string name="xml_uri">http://edem.argroup52.ru/yml.html</string>
+    <string name="xml_uri">http://www.dmenu.ru/</string>
+    <string name="restaurant">1010101</string>
     <string name="sample_section">Европейская кухня</string>
     <string name="sample_sub">Холодные закуски</string>
     <string name="main_text_confirm">Ваш заказ</string>

@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import com.HorizontalPager.dynamicPaging.HorizontalPager;
+import com.HorizontalPager.dynamicPaging.HorizontalPager.OnScreenSwitchListener;
 import com.remirran.digitalmenu.data.Dish;
 import com.remirran.digitalmenu.data.ExtData;
 import com.remirran.digitalmenu.data.Order;
@@ -161,6 +162,15 @@ public class CafeMenuActivity extends Activity {
             
             ((SubAdapter)parent.getAdapter()).setActiveItem(view);
             parent.invalidate();
+		}
+	};
+	
+	private OnScreenSwitchListener screenSwitch = new OnScreenSwitchListener() {
+		
+		@Override
+		public void onScreenSwitched(int screen) {
+			// TODO Auto-generated method stub
+			
 		}
 	};
 	
