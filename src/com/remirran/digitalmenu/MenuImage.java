@@ -62,13 +62,16 @@ public class MenuImage extends ImageView {
 		int scaledHeight = getMeasuredHeight();
 		
 		Bitmap mScaledBitmap;
+		Bitmap mBack = Bitmap.createScaledBitmap(((BitmapDrawable)getContext().getResources().getDrawable(R.drawable.background_dish)).getBitmap(), scaledWidth, scaledHeight, true);
 		if (scaledWidth == fullSizeBitmap.getWidth() && scaledHeight == fullSizeBitmap.getHeight()) {
 			mScaledBitmap = fullSizeBitmap;
 		} else {
 			mScaledBitmap = Bitmap.createScaledBitmap(fullSizeBitmap, scaledWidth, scaledHeight, true /* filter */);
 		}
 		Bitmap roundBitmap = setRoundCorners(mScaledBitmap, RADIUS, scaledWidth, scaledHeight);
+		
 		canvas.drawBitmap(roundBitmap, 0, 0, null);
+		canvas.drawBitmap(mBack, 0, 0, null);
 	}
 	
 	private Bitmap setRoundCorners(Bitmap source, int radius, int w, int h) {
@@ -78,7 +81,7 @@ public class MenuImage extends ImageView {
 		/*TODO: add possibility to fill it from config*/
 		final int color = 0xffcccccc;
 		final Paint paint = new Paint();
-		final Rect rect = new Rect(0, 0, w, h);
+		final Rect rect = new Rect(5, 5, w-5, h-5);
 		final RectF rectF = new RectF(rect);
 		final float roundPX = radius * ExtData.DENSITY;
 		

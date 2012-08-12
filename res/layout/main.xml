@@ -26,6 +26,8 @@
 	   			android:layout_width="fill_parent"
 	   			android:layout_alignParentTop="true"
 	   			android:layout_above="@+id/main_text_confirm"
+	   			android:divider="@android:color/transparent"
+	  			android:dividerHeight="0.0sp"
 	   			android:orientation="vertical">
 			</ListView>
 			<ListView 
@@ -35,6 +37,8 @@
 	   			android:background="@drawable/background_order_list"
 	   			android:layout_alignParentBottom="true"
 	   			android:layout_below="@+id/main_text_confirm"
+	   			android:divider="@android:color/transparent"
+	  			android:dividerHeight="0.0sp"
 	   			android:orientation="vertical">
 			</ListView>
 			<LinearLayout
@@ -45,6 +49,7 @@
 				<TextView 
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
+					android:text="@string/main_text_confirm"
 					android:background="@drawable/button_your_order"
 					style="@style/DigitalMenu.Main.DefaultButton"/>
 			</LinearLayout>

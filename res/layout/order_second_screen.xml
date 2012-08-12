@@ -9,7 +9,9 @@
         android:layout_width="0dp"
         android:layout_weight="1"
         android:background="@drawable/background_order_complete_left"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
         <ImageView android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:paddingTop="5dp"
@@ -41,16 +43,20 @@
 	    android:layout_height="fill_parent"
 	    android:orientation="vertical"
 	    android:background="@drawable/background_order_complete_rigth"
-	    android:id="@+id/order_second_screen">
+	    android:id="@+id/order_second_screen"
+	    android:padding="10dp">
 	    <TextView android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content"
 	    	style="@style/DigitalMenu.Main.DefaultButton"
-	    	android:background="@drawable/button_confirm_large"
+	    	android:background="@android:color/transparent"
 	    	android:id="@+id/order_button_confirm_large"
 	    	android:layout_alignParentTop="true"
+	    	android:textColor="@android:color/black"
 	    	android:text="@string/order_complete_title"/>
 	    <ListView android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
+	        android:divider="@android:color/transparent"
+			android:dividerHeight="0.0sp"
 	        android:layout_above="@+id/order_second_sum_ll"
 	        android:layout_below="@+id/order_button_confirm_large"
 	        android:id="@+id/main_order_layout">
@@ -75,8 +81,9 @@
 			android:text="@string/order_send"
 			android:onClick="onOrderSendClick"
 			android:layout_alignParentBottom="true"
+			android:layout_centerHorizontal="true"
 			android:id="@+id/order_send_button"
 			style="@style/DigitalMenu.Main.DefaultButton"
-			android:layout_gravity="right"/>
+			android:background="@drawable/button_send"/>
 	</RelativeLayout>
 </LinearLayout>

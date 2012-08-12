@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal" >
 	<TextView android:layout_width="0dp"
+	    android:layout_marginLeft="5dp"
 	    android:id="@+id/order_name"
 	    android:layout_weight="14"
 	    android:textSize="24sp"
