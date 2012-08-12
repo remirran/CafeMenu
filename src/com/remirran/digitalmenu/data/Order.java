@@ -24,7 +24,7 @@ public class Order {
 		public void setCount(int count) {
 			this.count = count;
 		}
-		public int getSum() {
+		public float getSum() {
 			return dish.getPrice() * count;
 		}
 		@Override

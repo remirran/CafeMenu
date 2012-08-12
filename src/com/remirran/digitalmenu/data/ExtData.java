@@ -89,7 +89,8 @@ public class ExtData implements DlCallbacks {
 	
 	/* Methods */
 	public ExtData(Context context) {
-		XML_URI = context.getString(R.string.xml_uri);
+		/* TODO: replace restaurant with a configurable option */
+		XML_URI = context.getString(R.string.xml_uri) + context.getString(R.string.restaurant) + ".xml";
 		CACHE_DIR = context.getCacheDir();
 		DENSITY = context.getResources().getDisplayMetrics().density;
 		ExtData.context = context;
@@ -126,8 +127,8 @@ public class ExtData implements DlCallbacks {
 		case STATE_NONE: 
 			break;
 		case STATE_ADV:
-			if (value.startsWith("http://")) {
-				advUri = value;
+			if (value.startsWith("/")) {
+				advUri = context.getString(R.string.xml_uri) + value;
 				new Downloader(this).execute(new String[] {advUri});
 			}
 			break;
@@ -151,8 +152,8 @@ public class ExtData implements DlCallbacks {
 				currentObj.setId(value);
 			} else if (key.equals("parent")) {
 				currentObj.setCategoryId(value);
-			} else if (key.equals("img") && value.trim().startsWith("http://")) {
-				currentObj.setImgUri(value.trim());
+			} else if (key.equals("img") && value.trim().startsWith("/")) {
+				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
 				new Downloader(this).execute(new String[] {currentObj.getImgUri()});
 			} else if (key.equals("category")) {
 				currentObj.setName(value);
@@ -163,14 +164,14 @@ public class ExtData implements DlCallbacks {
 				currentObj.setId(value);
 			} else if (key.equals("available")) {
 				((Dish)currentObj).setAvailFlag(value.toLowerCase().equals("true"));
-			} else if (key.equals("categoryId")) {
+			} else if (key.equals("category_id")) {
 				currentObj.setCategoryId(value);
 			} else if (key.equals("price")) {
-				((Dish)currentObj).setPrice(Integer.parseInt(value));
+				((Dish)currentObj).setPrice(Float.parseFloat(value));
 			} else if (key.equals("name")) {
 				currentObj.setName(value);
-			} else if (key.equals("picture") && value.trim().startsWith("http://") ) {
-				currentObj.setImgUri(value.trim());
+			} else if (key.equals("img") && value.trim().startsWith("/") ) {
+				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
 				new Downloader(this).execute(new String[] {currentObj.getImgUri()});
 			}
 			break;
@@ -283,7 +284,7 @@ public class ExtData implements DlCallbacks {
 								setPair(currentTag, parser.getAttributeValue(i));
 							}
 						}
-					} else if (currentTag.toLowerCase().equals("dategeneration")) {
+					} else if (currentTag.toLowerCase().equals("cache")) {
 						setState(STATE_UPDATE);
 					} else if (currentTag.toLowerCase().equals("category")) {
 						setState(STATE_SECTION);
