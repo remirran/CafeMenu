@@ -21,6 +21,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.params.HttpClientParams;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,6 +45,7 @@ public class FileCache {
 		cacheFile = getCacheFile(ExtData.CACHE_DIR, uri);
 		if (!isCached() || update) {
 			HttpClient client = AndroidHttpClient.newInstance("Android");
+			HttpClientParams.setRedirecting(client.getParams(), true);
 			HttpUriRequest getRequest = null;
 			try {
 				URL url = new URL(uri);
