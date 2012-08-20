@@ -1,7 +1,9 @@
 package com.remirran.digitalmenu;
 
+import java.sql.NClob;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -41,6 +43,8 @@ public class CafeMenuActivity extends Activity {
 	private final String LOG_TAG = "CafeMenuActivity";
 	public static final int DIALOG_ORDER_REMOVE = 1;
 	public static final int DIALOG_ORDER_ADD = 2;
+	private static final int DISHES_PER_SCREEN = 4;
+	private static final int ROWS_PER_SCREEN = 2;
 	/* Tools */
 	private ExtData eData;
 	private static LayoutInflater ltInflatter;
@@ -52,6 +56,8 @@ public class CafeMenuActivity extends Activity {
 	private Object dialogObject = null;
 	/*Main window state save*/
 	private static View save = null;
+	
+	private List<Dish> mCurrentSectionDishes;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,10 +116,10 @@ public class CafeMenuActivity extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			Vector<Dish> dishes = eData.getDishesBySection((Section)parent.getAdapter().getItem(position));
+			mCurrentSectionDishes = eData.getDishesBySection((Section)parent.getAdapter().getItem(position));
 
 			/*TODO no idea what to show in case of empty set*/
-			if (dishes == null || dishes.isEmpty()) return;
+			if (mCurrentSectionDishes == null || mCurrentSectionDishes.isEmpty()) return;
 
         	mainDataClear();
         	
@@ -125,37 +131,16 @@ public class CafeMenuActivity extends Activity {
             try {
             	HorizontalPager tPager = (HorizontalPager) tTable.findViewById(R.id.table_pager); 
                 tPager.removeAllViews();
+                tPager.setOnScreenSwitchListener(screenSwitch);
                 
-                LinearLayout tTableRows[] = new LinearLayout[2];
-                View tElem;
-                
-                /* Fill table */
-
-            	for (int i = 0; i < dishes.size(); i++ ) {
-            		if ( i % 4 == 0 ) {
-            			/*Add new page*/
-            			View tScreen = ltInflatter.inflate(R.layout.main_table_screen, tPager, false);
-            			
-            			tTableRows[0] = (LinearLayout) tScreen.findViewById(R.id.main_table_row1); 
-            			tTableRows[1] = (LinearLayout) tScreen.findViewById(R.id.main_table_row2);
-            			
-            			tPager.addView(tScreen);
-            		}
-            		/*Add new element*/
-                	tElem = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
-                	RelativeLayout tll = (RelativeLayout) tElem.findViewById(R.id.main_table_item);
-                	LayoutParams tllpar = (LayoutParams) tll.getLayoutParams();
-                	tllpar.width = tTableLayout.getMeasuredWidth() / 2;
-                	MenuImage tImg = (MenuImage) tElem.findViewById(R.id.main_table_img);
-                	tImg.assign(dishes.elementAt(i));
-                	TextView tv = (TextView) tElem.findViewById(R.id.main_table_name);
-                	tv.setText(dishes.elementAt(i).getName());
-                	tv = (TextView) tElem.findViewById(R.id.main_table_price);
-                	tv.setText(Tools.formatCurrency(CafeMenuActivity.this, dishes.elementAt(i).getPrice().toString()));
-                	Button addButton = (Button) tElem.findViewById(R.id.main_table_item_add_button);
-                	addButton.setTag(dishes.elementAt(i));
-                	tTableRows[i%2].addView(tElem);
+                /* Add screens */
+                for (int i = 0; i < mCurrentSectionDishes.size(); i++) {
+                	if ( i % DISHES_PER_SCREEN == 0 ) {
+                		View tScreen = ltInflatter.inflate(R.layout.main_table_screen, tPager, false);
+                		tPager.addView(tScreen);
+                	}
                 }
+                updateScreens(0);
             }catch (NullPointerException e) {
             	/*TODO: show something else, case of no dishes*/
             }
@@ -165,12 +150,67 @@ public class CafeMenuActivity extends Activity {
 		}
 	};
 	
+	private void updateScreens(int currentScreen) {
+		HorizontalPager tPager = (HorizontalPager) findViewById(R.id.table_pager); 
+		for (int i = 0; i < tPager.getChildCount(); i++) {
+			View screen = tPager.getChildAt(i);
+			if ( i >= currentScreen - 1 && i <= currentScreen + 1) {
+				if (!screenHasDishes(screen)) {
+					fillScreen(screen, i);
+				}
+			} else {
+				if (screenHasDishes(screen)) {
+					clearScreen(screen);
+				}
+			}
+		}
+	}
+	
+	private boolean screenHasDishes(View screen) {
+		int topViewChildrenCount = ((LinearLayout)screen).getChildCount();
+		if ( topViewChildrenCount == ROWS_PER_SCREEN) {
+			int childrenCount = 0;
+			for (int i = 0; i < topViewChildrenCount; i++ ) {
+				childrenCount += ((LinearLayout) ((LinearLayout)screen).getChildAt(i)).getChildCount();
+			}
+			return childrenCount > 0;
+		}
+		return false;
+	}
+	
+	private void clearScreen(View screen) {
+		for (int i = 0; i < ((LinearLayout)screen).getChildCount(); i++) {
+			unbindDrawables( ((LinearLayout)screen).getChildAt(i) );
+		}
+	}
+	
+	private void fillScreen(View screen, int pos) {
+		LinearLayout tTableRows[] = new LinearLayout[ROWS_PER_SCREEN];
+		for ( int i = 0; i < ROWS_PER_SCREEN; i++ ) {
+			tTableRows[i] = (LinearLayout) ((LinearLayout)screen).getChildAt(i);
+		}
+
+		for ( int i = DISHES_PER_SCREEN * pos; i < Math.min(DISHES_PER_SCREEN * (pos + 1), mCurrentSectionDishes.size()); i++ ) {
+			View tElem = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
+			RelativeLayout tll = (RelativeLayout) tElem.findViewById(R.id.main_table_item);
+			((LinearLayout.LayoutParams)tll.getLayoutParams()).weight = 1;
+			MenuImage tImg = (MenuImage) tElem.findViewById(R.id.main_table_img);
+			tImg.assign(mCurrentSectionDishes.get(i));
+			TextView tv = (TextView) tElem.findViewById(R.id.main_table_name);
+			tv.setText(mCurrentSectionDishes.get(i).getName());
+			tv = (TextView) tElem.findViewById(R.id.main_table_price);
+			tv.setText(Tools.formatCurrency(CafeMenuActivity.this, mCurrentSectionDishes.get(i).getPrice().toString()));
+			Button addButton = (Button) tElem.findViewById(R.id.main_table_item_add_button);
+			addButton.setTag(mCurrentSectionDishes.get(i));
+			tTableRows[ i % ROWS_PER_SCREEN ].addView(tElem);
+		}
+	}
+	
 	private OnScreenSwitchListener screenSwitch = new OnScreenSwitchListener() {
 		
 		@Override
 		public void onScreenSwitched(int screen) {
-			// TODO Auto-generated method stub
-			
+			updateScreens(screen);
 		}
 	};
 	
@@ -248,6 +288,8 @@ public class CafeMenuActivity extends Activity {
 	        Section sect = (Section) ((Button) v).getTag();
 	        ExtData.fillImg(sect.getImgUri(), hl, tImgView);
 	        tTableLayout.addView(tView);
+	        
+	        mCurrentSectionDishes = null;
         } catch (NoSuchElementException e) {
         	Log.w(LOG_TAG, "Can't get section: ", e);
         } catch (NullPointerException e) {

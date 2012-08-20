@@ -114,13 +114,17 @@ public class Order {
 	public static int getSize() {
 		return list.size();
 	}
+	
+	private static int invert (int pos) {
+		return getSize() - pos - 1;
+	}
 	public static Dish getItemByIndex(int pos) {
-		return list.get(pos).toDish();
+		return list.get(invert(pos)).toDish();
 	}
 	public static int getCountByIndex(int pos) {
-		return list.get(pos).getCount();
+		return list.get(invert(pos)).getCount();
 	}
 	public static String getSumByIndex(int pos) {
-		return "" + list.get(pos).getSum();
+		return "" + list.get(invert(pos)).getSum();
 	}
 }
