@@ -1,39 +1,54 @@
 package com.remirran.digitalmenu.data;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import android.os.AsyncTask;
-import android.util.Log;
+import com.remirran.digitalmenu.data.FileCache.CacheEntry;
 
-public class Downloader extends AsyncTask<String, Void, FileCache>{
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.widget.ImageView;
+
+public class Downloader extends AsyncTask<CacheEntry, Void, Bitmap>{
 	private static final String LOG_TAG="Downloader";
 	private DlCallbacks listener;
-	private String uri;
+	private CacheEntry task;
 
 	public Downloader(DlCallbacks listener) {
 		this.listener = listener;
 	}
 
 	@Override
-	protected FileCache doInBackground(String... params) {
-		try {
-			uri = params[0];
-			FileCache cache = new FileCache(uri, params.length > 1);
-			return cache;
-		} catch (FileNotFoundException e) {
-			cancel(true);
-			Log.w(LOG_TAG, "File not found: ", e);
-		} catch (IOException e) {
-			cancel(true);
-			Log.w(LOG_TAG, "IO error: ", e);
+	protected Bitmap doInBackground(CacheEntry... params) {
+		task = params[0];
+		
+		task.process();
+		
+		if ( task.exists()) {
+			if (task.isXml() ) {
+				listener.cleanOldValues();
+				listener.doParseXML(task);
+			} else {
+				if ( task.isResizeable() ) {
+					return task.getResizedBitmap();
+				} else {
+					return task.getBitmap();
+				}
+			}
 		}
+
 		return null;
 	}
 	
 	@Override
-	protected void onPostExecute(FileCache result) {
+	protected void onPostExecute(Bitmap result) {
 		super.onPostExecute(result);
-		/*TODO: check file status, not call this line in case of download fails*/
-		listener.onFileReceived(result);
+		if ( result == null && task.isXml() && task.isParsed() ) {
+			listener.onXMLParsed();
+		}
+		if (result != null) {
+			ImageView iv = task.getImageView();
+			if (iv != null) {
+				iv.setImageBitmap(result);
+				task.clearImageView();
+			}
+		}
 	}	
 }

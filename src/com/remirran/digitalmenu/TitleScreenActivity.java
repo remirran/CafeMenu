@@ -4,7 +4,6 @@ import com.remirran.digitalmenu.data.ExtData;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -18,8 +17,7 @@ public class TitleScreenActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.title);
 		ImageView tAdv = (ImageView) findViewById(R.id.title_adv_img);
-		Handler hl = new Handler();
-		ExtData.fillAdv(hl, tAdv);
+		ExtData.getInstance().fillAdv(tAdv);
 		
 		
 		

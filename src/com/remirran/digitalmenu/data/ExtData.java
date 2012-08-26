@@ -3,7 +3,6 @@ package com.remirran.digitalmenu.data;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -15,10 +14,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.remirran.digitalmenu.CafeMenuActivity;
 import com.remirran.digitalmenu.R;
+import com.remirran.digitalmenu.data.FileCache.CacheEntry;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -32,12 +30,13 @@ public class ExtData implements DlCallbacks {
 	private static final int STATE_COMMAND	= 5;
 	private static final int STATE_LAST		= 5;
 	
+	private static final String LOG_TAG = "ExtData";
+	private static final String ADV_TAG = "ADV";
+	
 	public static String XML_URI;
 	public static File CACHE_DIR;
 	public static float DENSITY;
 	private static Context context;
-	
-	private static final String LOG_TAG = "ExtData";
 	
 	/* Members */
 	/*TODO check this flag before XML re-parsing*/
@@ -50,58 +49,40 @@ public class ExtData implements DlCallbacks {
 	
 	private Section currentObj;
 	
-	private static class ResourseRequest {
-		private WeakReference<ImageView> iv;
-		private Handler hl;
-		public ResourseRequest(Handler hl, ImageView iv) {
-			this.hl = hl;
-			this.iv = new WeakReference<ImageView>(iv);
-		}
-		public Handler getHl() {
-			return hl;
-		}
-		public ImageView getIv() {
-			return iv.get();
-		}
-	}
-	private static final HashMap<String, ResourseRequest> delayed = new HashMap<String, ResourseRequest>();
-	
 	private int state;
 	
-	private static class Parser extends AsyncTask<FileCache, Void, Void> {
-		private DlCallbacks listener;
-		public Parser(DlCallbacks listener) {
-			this.listener = listener;
+	private static ExtData mInstance = null;
+	
+	public static ExtData getInstance() {
+		if (mInstance == null) {
+			mInstance = new ExtData();
 		}
-		
-		@Override
-		protected Void doInBackground(FileCache... params) {
-			listener.cleanOldValues();
-			listener.doParseXML(params[0]);
-			return null;
-		}
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			listener.onXMLParsed();
-		}
+		return mInstance;
 	}
 	
 	/* Methods */
-	public ExtData(Context context) {
+	public ExtData() {
 		/* TODO: replace restaurant with a configurable option */
 		XML_URI = context.getString(R.string.xml_uri) + context.getString(R.string.restaurant) + ".xml";
 		CACHE_DIR = context.getCacheDir();
 		DENSITY = context.getResources().getDisplayMetrics().density;
-		ExtData.context = context;
 		state = STATE_NONE;
 		/* Spawn a new task to update the structures */
 		/*TODO: remove "true" to disable cache*/
-		new Downloader(this).execute(new String[] {XML_URI, "true"});
+		CacheEntry request = FileCache.request(XML_URI, true);
+		new Downloader(this).execute(request);
+	}
+	/*TODO: remove this later*/
+	public static Context getContext() {
+		return context;
+	}
+	public static void setContext(Context context) {
+		ExtData.context = context;
 	}
 	
 	public void refresh () {
-		new Downloader(this).execute(new String[] {XML_URI, "true"});
+		CacheEntry request = FileCache.request(XML_URI, true);
+		new Downloader(this).execute(request);
 	}
 	
 	public void setState(int stateNew) throws IndexOutOfBoundsException {
@@ -129,7 +110,9 @@ public class ExtData implements DlCallbacks {
 		case STATE_ADV:
 			if (value.startsWith("/")) {
 				advUri = context.getString(R.string.xml_uri) + value;
-				new Downloader(this).execute(new String[] {advUri});
+				CacheEntry request = FileCache.request(ADV_TAG);
+				request.setUri(advUri);
+				new Downloader(this).execute(request);
 			}
 			break;
 		case STATE_UPDATE:
@@ -154,7 +137,8 @@ public class ExtData implements DlCallbacks {
 				currentObj.setCategoryId(value);
 			} else if (key.equals("img") && value.trim().startsWith("/")) {
 				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
-				new Downloader(this).execute(new String[] {currentObj.getImgUri()});
+				CacheEntry request = FileCache.request(currentObj.getImgUri(), false);
+				new Downloader(this).execute(request);
 			} else if (key.equals("category")) {
 				currentObj.setName(value);
 			}
@@ -172,7 +156,9 @@ public class ExtData implements DlCallbacks {
 				currentObj.setName(value);
 			} else if (key.equals("img") && value.trim().startsWith("/") ) {
 				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
-				new Downloader(this).execute(new String[] {currentObj.getImgUri()});
+				CacheEntry request = FileCache.request(currentObj.getImgUri(), false);
+				request.setResizeable(true);
+				new Downloader(this).execute(request);
 			}
 			break;
 		default: 
@@ -239,33 +225,24 @@ public class ExtData implements DlCallbacks {
 		return null;
 		
 	}
-	/* TODO: combine fillAdv && fillImg */
-	public static void fillAdv(Handler hl, ImageView iv) {
-		synchronized (delayed) {		
-			try {
-				/*TODO: probably this advUri is not thread-safe */
-				FileCache.fillImageFromCache(advUri, iv);
-			} catch (FileNotFoundException e) {
-				delayed.put("adv", new ResourseRequest(hl,iv));
-			}
-		}
+	
+	public void fillAdv(ImageView iv) {
+		fillImg(ADV_TAG, iv);
 	}
 	
-	public static void fillImg(String uri, Handler hl, ImageView iv) {
-		synchronized (delayed) {		
-			try {
-				/*TODO: probably this advUri is not thread-safe */
-				FileCache.fillImageFromCache(uri, iv);
-			} catch (FileNotFoundException e) {
-				delayed.put(uri, new ResourseRequest(hl,iv));
-			} catch (NullPointerException e) {
-				delayed.put(uri, new ResourseRequest(hl,iv));
-			}
+	public void fillImg(String uri, ImageView iv) {
+		CacheEntry request;
+		if (uri.equals(ADV_TAG)) {
+			request = FileCache.request(uri);
+		} else {
+			request = FileCache.request(uri, false);
 		}
+		request.setImageView(iv);
+		new Downloader(this).execute(request);
 	}
 	
 	@Override
-	public void doParseXML(FileCache cache) {
+	public void doParseXML(CacheEntry cache) {
 		try {
 			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 			XmlPullParser parser = factory.newPullParser();
@@ -311,6 +288,8 @@ public class ExtData implements DlCallbacks {
 				}
 				parser.next();
 		}
+		cache.setParsed(true);	
+		
 		} catch (XmlPullParserException e){
 			Log.w(LOG_TAG, "XML parsing problem", e);			
 		} catch (FileNotFoundException e) { 
@@ -318,46 +297,6 @@ public class ExtData implements DlCallbacks {
 		} catch (IOException e) {
 			Log.w(LOG_TAG, "IO problem", e);
 		}
-	}
-	
-	private static void checkDelayed(FileCache cache) {
-		synchronized (delayed) {
-			String uri = cache.getUri().equals(advUri)?"adv":cache.getUri();
-			if (delayed.containsKey(uri)) {
-				ResourseRequest rr = delayed.get(uri);
-				rr.getHl().post(new PicLoader(cache, rr.getIv()));
-				delayed.remove(cache.getUri());
-			}
-		}
-	}
-	
-	static public class PicLoader implements Runnable{
-		private FileCache cache;
-		private ImageView iv;
-		public PicLoader(FileCache cache, ImageView iv) {
-			this.cache = cache;
-			this.iv = iv;
-		}
-		
-		@Override
-		public void run() {
-			try {
-			cache.fillImageFromCache(iv);
-			} catch (NullPointerException e) {
-				Log.w(LOG_TAG, "ImageView already deleted by GC", e);
-			}
-		}
-		
-	}
-
-	@Override
-	public void onFileReceived(FileCache cache) {
-		if (cache.isXml()) {
-			new Parser(this).execute(new FileCache[] {cache});
-			} else {
-			checkDelayed(cache);
-		}
-		
 	}
 
 	@Override
