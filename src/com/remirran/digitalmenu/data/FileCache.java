@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -23,8 +26,19 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 
+import com.remirran.digitalmenu.CafeMenuActivity;
+import com.remirran.digitalmenu.R;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Bitmap.Config;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 import android.widget.ImageView;
@@ -32,128 +46,329 @@ import android.widget.ImageView;
 public class FileCache {
 	private static final String LOG_TAG = "FileCache";
 	public static final long CACHE_TIME = 31536000; /* One year */
-	private static HashMap<String, File> cacheIndex = new HashMap<String, File>();
-	private String uri;
-	private File cacheFile;
-	private boolean isXml;
 	
-	/*TODO: Handle disconnects through CONNECTIVITY_CHANGE: http://stackoverflow.com/questions/1783117/network-listener-android */
-	/*to create a request queue and check requests there in case of re-get anything*/
-	public FileCache(String uri, boolean update) throws FileNotFoundException, IOException {
-		this.uri = uri;
-		isXml = uri.endsWith("xml") || uri.endsWith("html");
-		cacheFile = getCacheFile(ExtData.CACHE_DIR, uri);
-		if (!isCached() || update) {
-			HttpClient client = AndroidHttpClient.newInstance("Android");
-			HttpClientParams.setRedirecting(client.getParams(), true);
-			HttpUriRequest getRequest = null;
+	public class CacheEntry {
+		private static final int MAX_AVAILABLE = 1;
+		private static final short MAX_DOWNLOADS = 3;
+		private final Semaphore lock = new Semaphore(MAX_AVAILABLE);
+		private String uri;
+		private File mCachedFile = null;
+		private File mImageResized = null;
+		private WeakReference<ImageView> mImageView = null;
+		private boolean mDownloaded = false;
+		private boolean mParsed = false;
+		private boolean mForceReload = false;
+		private boolean mResizeable = false;
+		
+		/* Error protection */
+		private short mDownloadsCounter = 0;
+		
+		public CacheEntry () {
+		}
+		
+		public CacheEntry (String uri) {
+			this.uri = uri;
 			try {
-				URL url = new URL(uri);
-				URI safeURI = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-				getRequest = new HttpGet(safeURI);;
-				HttpResponse response = client.execute(getRequest);
-				final int status = response.getStatusLine().getStatusCode();
-				if (status != HttpStatus.SC_OK) {
-					/* TODO handle it somehow */
-				}
-				//isXml = response.getHeaders("Content-Type").toString().contains("text/xml");
-				final HttpEntity entity = response.getEntity();
-				try {
-					entity.writeTo(new FileOutputStream(cacheFile));
-				} finally {
-					entity.consumeContent();
-				}
-			} catch (IllegalStateException e) {
-				getRequest.abort();
-				Log.w(LOG_TAG, "Incorrect URI: "+uri, e);
-			} catch (URISyntaxException e) {
-				Log.w(LOG_TAG, "Can't create uri: " + uri, e);
-			} catch (MalformedURLException e) {
-				Log.w(LOG_TAG, "Can't parse uri: " + uri, e);
+				updateURIDeps();
 			} catch (IOException e) {
-				getRequest.abort();
-				Log.w(LOG_TAG, "I/O error: url="+uri, e);
-			} catch (Exception e) {
-				getRequest.abort();
-				Log.w(LOG_TAG, "Exception during: " + uri, e);
-			}finally {
-				if ((client instanceof AndroidHttpClient)) {
-					((AndroidHttpClient) client).close();
+				Log.e(LOG_TAG, "I/O error: url=" + uri, e);
+			}
+		}
+		
+		public void setForceReload(boolean flag) {
+			if ( mDownloadsCounter < MAX_DOWNLOADS ) {
+				this.mForceReload = flag;
+			} else {
+				Log.e(LOG_TAG, "Download limit reached for URI: " + uri);
+				/* TODO: notify server */
+			}
+		}
+		public void setResizeable(boolean flag) {
+			this.mResizeable = flag;
+			try {
+				updateURIDeps();
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "I/O error: url=" + uri, e);
+			}
+		}
+		public void setParsed(boolean flag) {
+			this.mParsed = flag;
+		}
+		public void setDownloaded(boolean flag) {
+			this.mDownloaded = flag;
+			if (flag) {
+				mForceReload = !flag;
+				mDownloadsCounter++;
+			}
+		}
+		public void setUri(String uri) {
+			try {
+				lock.acquire();
+				synchronized (mCacheIndex) {
+					if (this.uri != null && !this.uri.isEmpty()) {
+						mCacheIndex.remove(this.uri);
+					}
+					mCacheIndex.put(uri, this);
+				}
+				this.uri = uri;
+			
+				updateURIDeps();
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "I/O error: url=" + uri, e);
+			} catch (InterruptedException e) {
+				Log.w(LOG_TAG, "Interrupted: " + uri, e);
+			} finally {
+				lock.release();
+			}
+		}
+		public void setImageView(ImageView iv) {
+			try {
+				lock.acquire();
+				this.mImageView = new WeakReference<ImageView>(iv);
+			} catch (InterruptedException e) {
+				Log.w(LOG_TAG, "Interrupted: " + uri, e);
+			} finally {
+				lock.release();
+			}
+		}
+		
+		public void clearImageView() {
+			try {
+				lock.acquire();
+				this.mImageView = null;
+			} catch (InterruptedException e) {
+				Log.w(LOG_TAG, "Interrupted: " + uri, e);
+			} finally {
+				lock.release();
+			}
+		}
+		
+		public boolean hasImageView() {
+			return mImageView != null;
+		}
+		
+		private void updateURIDeps() throws IOException {
+			String hash = md5(uri);
+			mCachedFile =  new File(ExtData.CACHE_DIR, hash + ".cache");
+			if (mResizeable) {
+				mImageResized =  new File(ExtData.CACHE_DIR, hash + ".small.cache");
+				if (!mImageResized.exists()) {
+					mImageResized.createNewFile();
 				}
 			}
-			synchronized (cacheIndex) {
-				if(!getRequest.isAborted()) {
-					cacheIndex.put(uri, cacheFile);
-					Log.d(LOG_TAG, "SAVED:" + uri + " = " + cacheFile.getName());
+			
+			if (!mCachedFile.exists()) {
+				mCachedFile.createNewFile();
+				mForceReload = true;
+			} else {
+				long time = new Date().getTime() / 1000;
+				long timeLastModified = mCachedFile.lastModified() / 1000;
+				if ( timeLastModified + CACHE_TIME < time ) {
+					mCachedFile.delete();
+					mCachedFile.createNewFile();
+					if (mResizeable) {
+						mImageResized.delete();
+						mImageResized.createNewFile();
+					}
+					mForceReload = true;
 				}
 			}
 		}
 		
-	}
-	/* TODO: Handle it somewhere */
-	public static void fillImageFromCache(String uri, ImageView iv) throws FileNotFoundException, NullPointerException {
-		if (uri == null || uri.isEmpty()) {
-			throw new FileNotFoundException("Empty URI string");
+		public boolean isDownloaded() {
+			return mDownloaded;
 		}
-		if (iv == null) {
-			throw new FileNotFoundException("ImageView is null");
+		public boolean isResizeable() {
+			return mResizeable;
 		}
-		if (cacheIndex.get(uri) == null) {
-			throw new FileNotFoundException("File is not in cache");
+		
+		public boolean isXml() {
+			return uri.endsWith("xml") || uri.endsWith("html");
 		}
-		if (!cacheIndex.get(uri).exists()) {
-			/* TODO: force reload*/
-			throw new FileNotFoundException("File is not in cache");
+		public boolean isParsed(){
+			return mParsed;
 		}
-		synchronized (cacheIndex) {
-			Log.d(LOG_TAG, "REQ: "+uri + " = " + md5(uri));
-			Bitmap bm = BitmapFactory.decodeStream(new FileInputStream(cacheIndex.get(uri)));
-			iv.setImageBitmap(bm);
+		
+		public boolean isParceable() {
+			return isUriValid() && isXml();
 		}
-	}
-	
-	public void fillImageFromCache(ImageView iv) {
-		Bitmap bm;
-		try {
-			bm = BitmapFactory.decodeStream(getInputStream());
-			iv.setImageBitmap(bm);
-		} catch (FileNotFoundException e) {
-			Log.w(LOG_TAG, "File not found: ", e);
+		
+		public String getUri() {
+			return uri;
 		}
-	}
-	
-	public boolean isCached() throws IOException {
-		if (!cacheFile.exists()) {
-			cacheFile.createNewFile();
+		
+		public ImageView getImageView() {
+			try {
+				lock.acquire();
+				return this.mImageView.get();
+			} catch (InterruptedException e) {
+				Log.w(LOG_TAG, "Interrupted: " + uri, e);
+			} catch (NullPointerException e) {
+				/*just return null*/
+			} finally {
+				lock.release();
+			}
+			return null;
+		}
+		
+		public boolean exists() {
+			if (mForceReload) return false;
+			if (mResizeable && mImageResized != null && mImageResized.length() > 0) return true;
+			if (mCachedFile != null && mCachedFile.length() > 0) return true;
 			return false;
-		} else {
-			long time = new Date().getTime() / 1000;
-			long timeLastModified = cacheFile.lastModified() / 1000;
-			if ( timeLastModified + CACHE_TIME < time ) {
-				cacheFile.delete();
-				cacheFile.createNewFile();
-				return false;
+		}
+		
+		public InputStream getInputStream() throws FileNotFoundException {
+			return new FileInputStream(mCachedFile);
+		}
+		
+		public OutputStream getOutputStream() throws FileNotFoundException {
+			return new FileOutputStream(mCachedFile);
+		}
+		
+		public InputStream getResizedInputStream() throws FileNotFoundException {
+			return new FileInputStream(mImageResized);
+		}
+		
+		public OutputStream getResizedOutputStream() throws FileNotFoundException {
+			return new FileOutputStream(mImageResized);
+		}
+		
+		public Bitmap getBitmap() {
+			Bitmap retval = null;
+			try {
+				retval = BitmapFactory.decodeStream(getInputStream());
+				if ( retval == null ) {
+					mForceReload = true;
+					mDownloaded = false;
+				}
+			} catch (FileNotFoundException e) {
+				Log.w(LOG_TAG, "FileNotFound: " + uri, e);
+			}
+
+			return retval;
+		}
+		
+		public Bitmap getResizedBitmap() {
+			Bitmap retval = null;
+			try {
+				retval = BitmapFactory.decodeStream(getResizedInputStream());
+			
+				if ( mDownloaded && retval == null ) {
+					mForceReload = true;
+					mDownloaded = false;
+					mResizeable = true;
+				}
+			} catch (FileNotFoundException e) {
+				Log.w(LOG_TAG, "FileNotFound: " + uri, e);
+			}
+			return retval;
+		}
+		
+		public boolean isUriValid() {
+			return uri != null && !uri.isEmpty() && uri.startsWith("http://");
+		}
+		
+		public void process() {
+			try {
+				lock.acquire();
+				
+				if ( isUriValid() && (mForceReload || mCachedFile.length() == 0) ) {
+					downloadFile(this);
+				}
+				
+				if ( isUriValid() && !isXml() && mResizeable && mCachedFile.length() > 0 && (mDownloaded || mImageResized.length() == 0)  ) {
+					prepareImageForTable(this);
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				lock.release();
 			}
 		}
-		if (cacheIndex.get(uri) == null) {
-			cacheIndex.put(uri, cacheFile);
+	}
+	
+	private static HashMap<String, CacheEntry> mCacheIndex = new HashMap<String, CacheEntry>();
+	
+	/*TODO: Handle disconnects through CONNECTIVITY_CHANGE: http://stackoverflow.com/questions/1783117/network-listener-android */
+	/*to create a request queue and check requests there in case of re-get anything*/
+	private static FileCache mInstance = null;
+	private static FileCache getInstance() {
+		if (mInstance == null) {
+			mInstance = new FileCache();
 		}
-		return true;
+		return mInstance;
+	}
+	private FileCache() {
 	}
 	
-	public static File getCacheFile(File dir, String uri) {
-		return new File(dir, md5(uri) + ".cache");
-	}
-	public boolean isXml() {
-		return isXml;
+	public static CacheEntry request(final String tag) {
+		CacheEntry retval = null;
+		synchronized (mCacheIndex) {
+			retval = mCacheIndex.get(tag);
+			if (retval == null) {
+				retval = getInstance().new CacheEntry();
+				mCacheIndex.put(tag, retval);
+			}
+		}
+		return retval;
 	}
 	
-	public String getUri() {
-		return uri;
+	public static CacheEntry request(final String uri, boolean update) {
+		CacheEntry retval = null;
+		synchronized (mCacheIndex) {
+			retval = mCacheIndex.get(uri);
+			if (retval == null) {
+				retval = getInstance().new CacheEntry(uri);
+				mCacheIndex.put(uri, retval);
+			}
+			retval.setForceReload(update);
+		}
+		return retval;
 	}
 	
-	public InputStream getInputStream() throws FileNotFoundException {
-		return new FileInputStream(cacheFile);
+	public void downloadFile (CacheEntry cache) {
+		HttpClient client = AndroidHttpClient.newInstance("Android");
+		HttpClientParams.setRedirecting(client.getParams(), true);
+		HttpUriRequest getRequest = null;
+		String uri = cache.getUri();
+		try {
+			URL url = new URL(uri);
+			URI safeURI = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+			getRequest = new HttpGet(safeURI);
+			HttpResponse response = client.execute(getRequest);
+			final int status = response.getStatusLine().getStatusCode();
+			if (status != HttpStatus.SC_OK) {
+				/* TODO handle it somehow */
+			}
+			final HttpEntity entity = response.getEntity();
+			try {
+				entity.writeTo(cache.getOutputStream());
+			} finally {
+				entity.consumeContent();
+			}
+		} catch (IllegalStateException e) {
+			getRequest.abort();
+			Log.w(LOG_TAG, "Incorrect URI: " + uri, e);
+		} catch (URISyntaxException e) {
+			Log.w(LOG_TAG, "Can't create uri: " + uri, e);
+		} catch (MalformedURLException e) {
+			Log.w(LOG_TAG, "Can't parse uri: " + uri, e);
+		} catch (IOException e) {
+			getRequest.abort();
+			Log.w(LOG_TAG, "I/O error: url=" + uri, e);
+		} catch (Exception e) {
+			getRequest.abort();
+			Log.w(LOG_TAG, "Exception during: " + uri, e);
+		}finally {
+			if ((client instanceof AndroidHttpClient)) {
+				((AndroidHttpClient) client).close();
+			}
+		}
+		if(!getRequest.isAborted()) {
+			cache.setDownloaded(true);
+		}
 	}
 	
 	public static String md5 (String s) {
@@ -172,23 +387,61 @@ public class FileCache {
 		return "";
 	}
 	
-	public static void fileSave (InputStream is, FileOutputStream os) {
+	
+	private static final int RADIUS = 20;
+	private static final int PNG_COMPRESSION = 90;
+	
+	private void prepareImageForTable(CacheEntry cache) {
+		int scaledWidth = CafeMenuActivity.MAIN_TABLE_IMAGE_WIDTH;
+		int scaledHeight = CafeMenuActivity.MAIN_TABLE_IMAGE_HEIGHT;
+		
+		Bitmap result = Bitmap.createBitmap(scaledWidth, scaledHeight, Config.ARGB_8888);
+		Canvas canvas = new Canvas(result);
+		Bitmap source = cache.getBitmap();
+		if (source == null) {
+			/*TODO: handle it in downloader*/
+			return;
+		}
+		Bitmap mScaledBitmap;
+		Bitmap mBack = Bitmap.createScaledBitmap(((BitmapDrawable)ExtData.getContext().getResources().getDrawable(R.drawable.background_dish)).getBitmap(), scaledWidth, scaledHeight, true);
+		if (scaledWidth == source.getWidth() && scaledHeight == source.getHeight()) {
+			mScaledBitmap = source;
+		} else {
+			mScaledBitmap = Bitmap.createScaledBitmap(source, scaledWidth, scaledHeight, true /* filter */);
+		}
+		Bitmap roundBitmap = setRoundCorners(mScaledBitmap, RADIUS, scaledWidth, scaledHeight);
+		
+		canvas.drawBitmap(roundBitmap, 0, 0, null);
+		canvas.drawBitmap(mBack, 0, 0, null);
+		
 		try {
-			int i;
-			while ((i = is.read()) != -1) {
-				os.write(i);
-			}
+			OutputStream os = cache.getResizedOutputStream();
+			result.compress(Bitmap.CompressFormat.PNG, PNG_COMPRESSION, os);
+			os.flush();
+			os.close();
+		} catch (FileNotFoundException e) {
+			Log.w(LOG_TAG, "FileNotFound: ", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.w(LOG_TAG, "IO error: ", e);
 		}
 	}
 	
-	public boolean findObject(String object) {
-		synchronized (cacheIndex) {
-			if (cacheIndex.get(object) != null) {
-				return true;
-			}
-		}
-		return false;
+	private Bitmap setRoundCorners(Bitmap source, int radius, int w, int h) {
+		Bitmap output = Bitmap.createBitmap(w, h, Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+		
+		final int color = 0xffcccccc;
+		final Paint paint = new Paint();
+		final Rect rect = new Rect(5, 5, w-5, h-5);
+		final RectF rectF = new RectF(rect);
+		final float roundPX = radius * ExtData.DENSITY;
+		
+		paint.setAntiAlias(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(color);
+		canvas.drawRoundRect(rectF, roundPX, roundPX, paint);
+		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+		canvas.drawBitmap(source, rect, rect, paint);
+		return output;
 	}
 }

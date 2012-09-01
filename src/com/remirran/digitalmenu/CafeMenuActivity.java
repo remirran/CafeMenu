@@ -1,6 +1,5 @@
 package com.remirran.digitalmenu;
 
-import java.sql.NClob;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -22,17 +21,16 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -46,9 +44,7 @@ public class CafeMenuActivity extends Activity {
 	private static final int DISHES_PER_SCREEN = 4;
 	private static final int ROWS_PER_SCREEN = 2;
 	/* Tools */
-	private ExtData eData;
 	private static LayoutInflater ltInflatter;
-	private static Handler hl;
 	/* Order */
 	private static final Order order = Order.getOrder();
 	private static OrderAdapter orderAdapter;
@@ -56,19 +52,24 @@ public class CafeMenuActivity extends Activity {
 	private Object dialogObject = null;
 	/*Main window state save*/
 	private static View save = null;
-	
+	public static int MAIN_TABLE_IMAGE_WIDTH;
+	public static int MAIN_TABLE_IMAGE_HEIGHT;
+
 	private List<Dish> mCurrentSectionDishes;
+	private List<Integer> mSectionChildrenCount;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        eData = new ExtData(this);
-        hl = new Handler();
+        ExtData.setContext(this);
+        
         /* Show adv window */
         /* TODO: move init screen there */
         Intent tAdvScreen = new Intent(this, TitleScreenActivity.class);
         startActivity(tAdvScreen);
+        
+        mSectionChildrenCount = new Vector<Integer>();
         
         /* Init with the table number */
         /* TODO: skip this in locked state */
@@ -81,12 +82,29 @@ public class CafeMenuActivity extends Activity {
         ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
         tLstLayout.setAdapter(orderAdapter);
         tLstLayout.setOnItemClickListener(orderListener);
+        
+        LinearLayout tTableParent = (LinearLayout) findViewById(R.id.main_data);
+        tTableParent.addOnLayoutChangeListener(mainDataLayoutChangeListener);
+        
     }
+	
+	private OnLayoutChangeListener mainDataLayoutChangeListener = new OnLayoutChangeListener() {
+		
+		@Override
+		public void onLayoutChange(View v, int left, int top, int right,
+				int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+			if (left == 0 && top == 0 && right == 0 && bottom == 0) {
+				return;
+			}
+			MAIN_TABLE_IMAGE_WIDTH = (right - left)/2;
+			MAIN_TABLE_IMAGE_HEIGHT = (bottom - top)/2;
+		}
+	};
 	
 	public void applyDownloadedInfo() {
         /* Fill titles*/
         LinearLayout tTtlLayout = (LinearLayout) findViewById(R.id.main_title_layout);
-        Vector<Section> sects = eData.getSections();
+        Vector<Section> sects = ExtData.getInstance().getSections();
         synchronized (sects) {
 			Collections.sort(sects);
 			Iterator<Section> itr = sects.iterator();
@@ -116,7 +134,7 @@ public class CafeMenuActivity extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			mCurrentSectionDishes = eData.getDishesBySection((Section)parent.getAdapter().getItem(position));
+			mCurrentSectionDishes = ExtData.getInstance().getDishesBySection((Section)parent.getAdapter().getItem(position));
 
 			/*TODO no idea what to show in case of empty set*/
 			if (mCurrentSectionDishes == null || mCurrentSectionDishes.isEmpty()) return;
@@ -138,6 +156,7 @@ public class CafeMenuActivity extends Activity {
                 	if ( i % DISHES_PER_SCREEN == 0 ) {
                 		View tScreen = ltInflatter.inflate(R.layout.main_table_screen, tPager, false);
                 		tPager.addView(tScreen);
+                		mSectionChildrenCount.add(0);
                 	}
                 }
                 updateScreens(0);
@@ -155,27 +174,16 @@ public class CafeMenuActivity extends Activity {
 		for (int i = 0; i < tPager.getChildCount(); i++) {
 			View screen = tPager.getChildAt(i);
 			if ( i >= currentScreen - 1 && i <= currentScreen + 1) {
-				if (!screenHasDishes(screen)) {
+				if (mSectionChildrenCount.get(i) == 0) {
 					fillScreen(screen, i);
 				}
 			} else {
-				if (screenHasDishes(screen)) {
+				if (mSectionChildrenCount.get(i) > 0) {
 					clearScreen(screen);
+					mSectionChildrenCount.set(i, 0);
 				}
 			}
 		}
-	}
-	
-	private boolean screenHasDishes(View screen) {
-		int topViewChildrenCount = ((LinearLayout)screen).getChildCount();
-		if ( topViewChildrenCount == ROWS_PER_SCREEN) {
-			int childrenCount = 0;
-			for (int i = 0; i < topViewChildrenCount; i++ ) {
-				childrenCount += ((LinearLayout) ((LinearLayout)screen).getChildAt(i)).getChildCount();
-			}
-			return childrenCount > 0;
-		}
-		return false;
 	}
 	
 	private void clearScreen(View screen) {
@@ -189,19 +197,15 @@ public class CafeMenuActivity extends Activity {
 		for ( int i = 0; i < ROWS_PER_SCREEN; i++ ) {
 			tTableRows[i] = (LinearLayout) ((LinearLayout)screen).getChildAt(i);
 		}
-
-		for ( int i = DISHES_PER_SCREEN * pos; i < Math.min(DISHES_PER_SCREEN * (pos + 1), mCurrentSectionDishes.size()); i++ ) {
+		mSectionChildrenCount.set(pos, Math.min(DISHES_PER_SCREEN * (pos + 1), mCurrentSectionDishes.size()));
+		for ( int i = DISHES_PER_SCREEN * pos; i < mSectionChildrenCount.get(pos); i++ ) {
+			
 			View tElem = ltInflatter.inflate(R.layout.main_table_item, tTableRows[i%2], false);
-			RelativeLayout tll = (RelativeLayout) tElem.findViewById(R.id.main_table_item);
-			((LinearLayout.LayoutParams)tll.getLayoutParams()).weight = 1;
-			MenuImage tImg = (MenuImage) tElem.findViewById(R.id.main_table_img);
-			tImg.assign(mCurrentSectionDishes.get(i));
-			TextView tv = (TextView) tElem.findViewById(R.id.main_table_name);
-			tv.setText(mCurrentSectionDishes.get(i).getName());
-			tv = (TextView) tElem.findViewById(R.id.main_table_price);
-			tv.setText(Tools.formatCurrency(CafeMenuActivity.this, mCurrentSectionDishes.get(i).getPrice().toString()));
-			Button addButton = (Button) tElem.findViewById(R.id.main_table_item_add_button);
-			addButton.setTag(mCurrentSectionDishes.get(i));
+			DishLayout dishLayout = (DishLayout) tElem.findViewById(R.id.main_table_item);
+			((LinearLayout.LayoutParams)dishLayout.getLayoutParams()).width = MAIN_TABLE_IMAGE_WIDTH; 
+			
+			dishLayout.fillDishValues(mCurrentSectionDishes.get(i));
+
 			tTableRows[ i % ROWS_PER_SCREEN ].addView(tElem);
 		}
 	}
@@ -243,7 +247,7 @@ public class CafeMenuActivity extends Activity {
 	private void updateSubsList(View v) {
 		try {
 			ListView tLstLayout = (ListView) findViewById(R.id.main_list_layout);
-	        SubAdapter tLstAdapter = new SubAdapter(this, eData.getSubs((Section) ((Button)v).getTag()));
+	        SubAdapter tLstAdapter = new SubAdapter(this, ExtData.getInstance().getSubs((Section) ((Button)v).getTag()));
 	        tLstLayout.setAdapter(tLstAdapter);
 		} catch (NullPointerException e) {
         	/* TODO: case of no subs*/
@@ -253,6 +257,7 @@ public class CafeMenuActivity extends Activity {
 	private void mainDataClear() {
 		LinearLayout tTableLayout = (LinearLayout) findViewById(R.id.main_data);
     	unbindDrawables(tTableLayout);
+    	mSectionChildrenCount.clear();
     	System.gc();
 	}
 	
@@ -286,7 +291,7 @@ public class CafeMenuActivity extends Activity {
         	View tView = ltInflatter.inflate(R.layout.main_table_splash, tTableLayout, false);
 	        ImageView tImgView = (ImageView) tView.findViewById(R.id.main_table_splash);
 	        Section sect = (Section) ((Button) v).getTag();
-	        ExtData.fillImg(sect.getImgUri(), hl, tImgView);
+	        ExtData.getInstance().fillImg(sect.getImgUri(), tImgView);
 	        tTableLayout.addView(tView);
 	        
 	        mCurrentSectionDishes = null;
@@ -404,7 +409,7 @@ public class CafeMenuActivity extends Activity {
     }
     
     public void onOrderSendClick(View v) {
-    	/*TODO: Send it on server*/
+    	/*TODO: Send it to server*/
     	
     	RelativeLayout tll = (RelativeLayout) findViewById(R.id.order_second_screen);
     	tll.removeAllViews();
