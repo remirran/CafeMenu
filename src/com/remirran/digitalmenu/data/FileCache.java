@@ -143,6 +143,10 @@ public class FileCache {
 			}
 		}
 		
+		public boolean hasImageView() {
+			return mImageView != null;
+		}
+		
 		private void updateURIDeps() throws IOException {
 			String hash = md5(uri);
 			mCachedFile =  new File(ExtData.CACHE_DIR, hash + ".cache");
@@ -185,6 +189,10 @@ public class FileCache {
 			return mParsed;
 		}
 		
+		public boolean isParceable() {
+			return isUriValid() && isXml();
+		}
+		
 		public String getUri() {
 			return uri;
 		}
@@ -204,7 +212,10 @@ public class FileCache {
 		}
 		
 		public boolean exists() {
-			return !mForceReload;
+			if (mForceReload) return false;
+			if (mResizeable && mImageResized != null && mImageResized.length() > 0) return true;
+			if (mCachedFile != null && mCachedFile.length() > 0) return true;
+			return false;
 		}
 		
 		public InputStream getInputStream() throws FileNotFoundException {
@@ -254,15 +265,19 @@ public class FileCache {
 			return retval;
 		}
 		
+		public boolean isUriValid() {
+			return uri != null && !uri.isEmpty() && uri.startsWith("http://");
+		}
+		
 		public void process() {
 			try {
 				lock.acquire();
 				
-				if ( uri.length() > 0 && (mForceReload || mCachedFile.length() == 0) ) {
+				if ( isUriValid() && (mForceReload || mCachedFile.length() == 0) ) {
 					downloadFile(this);
 				}
 				
-				if ( !isXml() && mResizeable && mCachedFile.length() == 0 && (mDownloaded || mImageResized.length() == 0)  ) {
+				if ( isUriValid() && !isXml() && mResizeable && mCachedFile.length() > 0 && (mDownloaded || mImageResized.length() == 0)  ) {
 					prepareImageForTable(this);
 				}
 			} catch (InterruptedException e) {

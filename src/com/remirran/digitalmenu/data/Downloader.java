@@ -14,6 +14,11 @@ public class Downloader extends AsyncTask<CacheEntry, Void, Bitmap>{
 	public Downloader(DlCallbacks listener) {
 		this.listener = listener;
 	}
+	
+	public void Setup(CacheEntry task) {
+		if (task.isUriValid() && (!task.exists() || task.hasImageView())) 
+			execute(task);
+	}
 
 	@Override
 	protected Bitmap doInBackground(CacheEntry... params) {
@@ -21,11 +26,12 @@ public class Downloader extends AsyncTask<CacheEntry, Void, Bitmap>{
 		
 		task.process();
 		
-		if ( task.exists()) {
-			if (task.isXml() ) {
-				listener.cleanOldValues();
-				listener.doParseXML(task);
-			} else {
+		
+		if (task.isParceable() ) {
+			listener.cleanOldValues();
+			listener.doParseXML(task);
+		} else {
+			if ( task.exists()) {
 				if ( task.isResizeable() ) {
 					return task.getResizedBitmap();
 				} else {
@@ -40,7 +46,7 @@ public class Downloader extends AsyncTask<CacheEntry, Void, Bitmap>{
 	@Override
 	protected void onPostExecute(Bitmap result) {
 		super.onPostExecute(result);
-		if ( result == null && task.isXml() && task.isParsed() ) {
+		if ( result == null && task.isParceable() && task.isParsed() ) {
 			listener.onXMLParsed();
 		}
 		if (result != null) {

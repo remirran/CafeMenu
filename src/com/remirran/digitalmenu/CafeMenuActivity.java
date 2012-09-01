@@ -409,7 +409,7 @@ public class CafeMenuActivity extends Activity {
     }
     
     public void onOrderSendClick(View v) {
-    	/*TODO: Send it on server*/
+    	/*TODO: Send it to server*/
     	
     	RelativeLayout tll = (RelativeLayout) findViewById(R.id.order_second_screen);
     	tll.removeAllViews();

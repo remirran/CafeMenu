@@ -68,9 +68,8 @@ public class ExtData implements DlCallbacks {
 		DENSITY = context.getResources().getDisplayMetrics().density;
 		state = STATE_NONE;
 		/* Spawn a new task to update the structures */
-		/*TODO: remove "true" to disable cache*/
 		CacheEntry request = FileCache.request(XML_URI, true);
-		new Downloader(this).execute(request);
+		new Downloader(this).Setup(request);
 	}
 	/*TODO: remove this later*/
 	public static Context getContext() {
@@ -82,7 +81,7 @@ public class ExtData implements DlCallbacks {
 	
 	public void refresh () {
 		CacheEntry request = FileCache.request(XML_URI, true);
-		new Downloader(this).execute(request);
+		new Downloader(this).Setup(request);
 	}
 	
 	public void setState(int stateNew) throws IndexOutOfBoundsException {
@@ -112,7 +111,7 @@ public class ExtData implements DlCallbacks {
 				advUri = context.getString(R.string.xml_uri) + value;
 				CacheEntry request = FileCache.request(ADV_TAG);
 				request.setUri(advUri);
-				new Downloader(this).execute(request);
+				new Downloader(this).Setup(request);
 			}
 			break;
 		case STATE_UPDATE:
@@ -138,7 +137,7 @@ public class ExtData implements DlCallbacks {
 			} else if (key.equals("img") && value.trim().startsWith("/")) {
 				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
 				CacheEntry request = FileCache.request(currentObj.getImgUri(), false);
-				new Downloader(this).execute(request);
+				new Downloader(this).Setup(request);
 			} else if (key.equals("category")) {
 				currentObj.setName(value);
 			}
@@ -158,7 +157,7 @@ public class ExtData implements DlCallbacks {
 				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
 				CacheEntry request = FileCache.request(currentObj.getImgUri(), false);
 				request.setResizeable(true);
-				new Downloader(this).execute(request);
+				new Downloader(this).Setup(request);
 			}
 			break;
 		default: 
@@ -238,7 +237,7 @@ public class ExtData implements DlCallbacks {
 			request = FileCache.request(uri, false);
 		}
 		request.setImageView(iv);
-		new Downloader(this).execute(request);
+		new Downloader(this).Setup(request);
 	}
 	
 	@Override
