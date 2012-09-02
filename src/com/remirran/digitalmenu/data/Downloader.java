@@ -26,7 +26,6 @@ public class Downloader extends AsyncTask<CacheEntry, Void, Bitmap>{
 		
 		task.process();
 		
-		
 		if (task.isParceable() ) {
 			listener.cleanOldValues();
 			listener.doParseXML(task);

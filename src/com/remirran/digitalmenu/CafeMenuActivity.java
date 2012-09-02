@@ -1,10 +1,26 @@
 package com.remirran.digitalmenu;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.HorizontalPager.dynamicPaging.HorizontalPager;
 import com.HorizontalPager.dynamicPaging.HorizontalPager.OnScreenSwitchListener;
@@ -20,6 +36,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -409,11 +426,44 @@ public class CafeMenuActivity extends Activity {
     }
     
     public void onOrderSendClick(View v) {
-    	/*TODO: Send it to server*/
+    	/*TODO: Check connectivity and server answer */
+    	try {
+			new SendDataToServer().execute(Order.toJSON());
+		} catch (JSONException e) {
+			Log.e(LOG_TAG, "Can't generate JSON", e);
+		}
+    }
+    
+    private class SendDataToServer extends AsyncTask<JSONObject, Void, Void> {
+
+		@Override
+		protected Void doInBackground(JSONObject... params) {
+	    	try {
+	    		JSONObject data = params[0];
+	    		DefaultHttpClient http = new DefaultHttpClient();
+	    		HttpPost post = new HttpPost(getString(R.string.xml_uri) + getString(R.string.restaurant));
+	    		ByteArrayEntity se = new ByteArrayEntity(data.toString().getBytes("UTF-8"));
+	    		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+	    		post.setEntity(se);
+	    		HttpResponse response = http.execute(post);
+	    	} catch (UnsupportedEncodingException e) {
+	    		Log.e(LOG_TAG, "Unsupported encoding", e);
+			} catch (ClientProtocolException e) {
+				Log.e(LOG_TAG, "Can't send data", e);
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "IO exception", e);
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			RelativeLayout tll = (RelativeLayout) findViewById(R.id.order_second_screen);
+	    	tll.removeAllViews();
+	    	ltInflatter.inflate(R.layout.order_thanks, tll);
+		}
     	
-    	RelativeLayout tll = (RelativeLayout) findViewById(R.id.order_second_screen);
-    	tll.removeAllViews();
-    	ltInflatter.inflate(R.layout.order_thanks, tll);
     }
     
     @Override

@@ -230,14 +230,18 @@ public class ExtData implements DlCallbacks {
 	}
 	
 	public void fillImg(String uri, ImageView iv) {
-		CacheEntry request;
-		if (uri.equals(ADV_TAG)) {
-			request = FileCache.request(uri);
-		} else {
-			request = FileCache.request(uri, false);
+		try {
+			CacheEntry request;
+			if (uri.equals(ADV_TAG)) {
+				request = FileCache.request(uri);
+			} else {
+				request = FileCache.request(uri, false);
+			}
+			request.setImageView(iv);
+			new Downloader(this).Setup(request);
+		} catch (NullPointerException e) {
+			
 		}
-		request.setImageView(iv);
-		new Downloader(this).Setup(request);
 	}
 	
 	@Override

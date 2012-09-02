@@ -6,6 +6,7 @@
 
     <uses-sdk android:minSdkVersion="15" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -21,6 +22,11 @@
         </activity>
         <activity android:name=".InitScreenActivity" android:screenOrientation="sensorLandscape"></activity>
         <activity android:screenOrientation="sensorLandscape" android:name=".TitleScreenActivity"></activity>
+        <receiver android:label="NetworkListener" android:name="com.remirran.digitalmenu.ConnectionChangeReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

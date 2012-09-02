@@ -3,6 +3,10 @@ package com.remirran.digitalmenu.data;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Order {
 	private static Order me = null;
 	private class Pair {
@@ -126,5 +130,31 @@ public class Order {
 	}
 	public static String getSumByIndex(int pos) {
 		return "" + list.get(invert(pos)).getSum();
+	}
+	
+	public static JSONObject toJSON() throws JSONException {
+		if (list.size() == 0) return null;
+		
+		JSONObject retval = new JSONObject();
+		JSONObject order = new JSONObject();
+		retval.put("order", order);
+		order.put("device", android.os.Build.MODEL);
+		order.put("table", "0");
+		
+		JSONArray dishes = new JSONArray();
+		JSONArray count = new JSONArray();
+		
+		Iterator<Pair> iter = list.iterator();
+		
+		while(iter.hasNext()) {
+			Pair item = iter.next();
+			dishes.put(item.toDish().getId());
+			count.put(item.getCount());
+		}
+		
+		order.put("dishes", dishes);
+		order.put("count", count);
+		
+		return retval;
 	}
 }
