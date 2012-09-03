@@ -424,6 +424,7 @@ public class CafeMenuActivity extends Activity {
     public void onOrderSendClick(View v) {
     	/*TODO: Check connectivity and server answer */
     	try {
+    		((Button) v).setEnabled(false);
 			new SendDataToServer().execute(Order.toJSON());
 		} catch (JSONException e) {
 			Log.e(LOG_TAG, "Can't generate JSON", e);
@@ -434,27 +435,36 @@ public class CafeMenuActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(JSONObject... params) {
+			HttpPost post = null;
 	    	try {
 	    		JSONObject data = params[0];
 	    		DefaultHttpClient http = new DefaultHttpClient();
-	    		HttpPost post = new HttpPost(getString(R.string.xml_uri) + getString(R.string.restaurant));
+	    		post = new HttpPost(getString(R.string.xml_uri) + getString(R.string.restaurant));
 	    		ByteArrayEntity se = new ByteArrayEntity(data.toString().getBytes("UTF-8"));
 	    		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 	    		post.setEntity(se);
 	    		HttpResponse response = http.execute(post);
 	    	} catch (UnsupportedEncodingException e) {
 	    		Log.e(LOG_TAG, "Unsupported encoding", e);
+	    		post.abort();
 			} catch (ClientProtocolException e) {
 				Log.e(LOG_TAG, "Can't send data", e);
+				post.abort();
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "IO exception", e);
+				post.abort();
 			}
+	    	if (!post.isAborted()) {
+	    		order.clear();
+	    	}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
+			/*TODO: check delivery result*/
+			updateOrderDetails();
 			RelativeLayout tll = (RelativeLayout) findViewById(R.id.order_second_screen);
 	    	tll.removeAllViews();
 	    	ltInflatter.inflate(R.layout.order_thanks, tll);

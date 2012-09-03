@@ -62,12 +62,19 @@ public class Order {
 	}
 	
 	public static void setCount(Dish d, Integer c) {
-		Pair p = search(d);
-		if (p == null) {
-			p = me.new Pair(d);
-			synchronized (list) {
-				list.add(p);
+		Pair p = null;
+		synchronized (list) {
+			Iterator<Pair> iter = list.iterator();
+			while (iter.hasNext()) {
+				Pair elem = iter.next();
+				if (elem.equals(d)) {
+					p = elem;
+					iter.remove();
+					break;
+				}
 			}
+			if (p == null) p=me.new Pair(d);
+			list.add(p);
 		}
 		p.setCount(c);
 		calc();

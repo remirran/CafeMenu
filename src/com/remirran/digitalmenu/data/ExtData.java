@@ -39,7 +39,6 @@ public class ExtData implements DlCallbacks {
 	private static Context context;
 	
 	/* Members */
-	/*TODO check this flag before XML re-parsing*/
 	private static String lastUpdate;
 	private static String advUri;
 	private static final Vector<Section> sections = new Vector<Section>();

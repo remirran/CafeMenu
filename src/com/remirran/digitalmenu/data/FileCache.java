@@ -281,8 +281,7 @@ public class FileCache {
 					prepareImageForTable(this);
 				}
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(LOG_TAG, "Interrupted Exception: " + uri, e);
 			} finally {
 				lock.release();
 			}

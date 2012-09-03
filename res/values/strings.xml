@@ -42,4 +42,7 @@
     <string name="remove">Удалить из заказа</string>
     
     <string name="price_format" formatted="false">%s руб</string>
+    
+    <string name="pref_code_title">Код</string>
+    <string name="pref_code_summary">Код ресторана</string>
 </resources>
