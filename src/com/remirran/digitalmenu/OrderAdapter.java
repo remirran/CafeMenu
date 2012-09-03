@@ -48,7 +48,7 @@ public class OrderAdapter extends BaseAdapter {
 		((TextView) view.findViewById(R.id.order_price)).setText(Tools.formatCurrency(ctx, Order.getSumByIndex(position)));
 		ImageView iv = (ImageView) view.findViewById(R.id.order_cancel);
 		iv.setOnClickListener(imgRemoveClickListener);
-		iv.setTag(position);
+		iv.setTag(Order.invert(position));
 		return view;
 	}
 	

@@ -119,7 +119,7 @@ public class Order {
 		return list.size();
 	}
 	
-	private static int invert (int pos) {
+	public static int invert (int pos) {
 		return getSize() - pos - 1;
 	}
 	public static Dish getItemByIndex(int pos) {
