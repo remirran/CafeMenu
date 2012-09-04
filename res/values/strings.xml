@@ -33,6 +33,7 @@
     <string name="order_complete_left3">За принесенные с собой закуски и спиртные напитки - ШТРАФ 500 руб.</string>
     <string name="order_complete_left4" formatted="false">В Ваш счет включается 5% за обслуживание и 10% за банкет.</string>
     <string name="order_send">Отправить</string>
+    <string name="order_send_progress">Отправляется</string>
     <string name="order_thanks">Ваш заказ отправлен на кухню. Через пару минут Вам его принесут. А пока Вы можете проверить почту, почитать новости, посмотреть фильм или сыграть в игры</string>
     <string name="dialog_add_title">Добавить в заказ</string>
     
@@ -45,4 +46,9 @@
     
     <string name="pref_code_title">Код</string>
     <string name="pref_code_summary">Код ресторана</string>
+    <string name="pref_code_defaut">1010101</string>
+    
+    <string name="pref_table_title">Столик</string>
+    <string name="pref_table_summary">Номер столика</string>
+    <string name="pref_table_default">0</string>
 </resources>

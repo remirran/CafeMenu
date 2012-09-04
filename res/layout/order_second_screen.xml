@@ -62,7 +62,7 @@
 	    <ListView android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:divider="@android:color/transparent"
-			android:dividerHeight="0.0sp"
+			android:dividerHeight="3.0sp"
 	        android:layout_above="@+id/order_second_sum_ll"
 	        android:layout_below="@+id/order_button_confirm_large"
 	        android:id="@+id/main_order_layout">

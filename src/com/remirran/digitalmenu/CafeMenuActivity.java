@@ -35,7 +35,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
@@ -60,7 +63,6 @@ public class CafeMenuActivity extends Activity {
 	private static LayoutInflater ltInflatter;
 	/* Order */
 	private static final Order order = Order.getOrder();
-	private static OrderAdapter orderAdapter;
 	private static OrderDialog orderDialog;
 	private Object dialogObject = null;
 	/*Main window state save*/
@@ -91,9 +93,8 @@ public class CafeMenuActivity extends Activity {
         
         ltInflatter = getLayoutInflater();
         
-        orderAdapter = new OrderAdapter(this);
         ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
-        tLstLayout.setAdapter(orderAdapter);
+        tLstLayout.setAdapter(new OrderAdapter(this, R.layout.main_order_item));
         tLstLayout.setOnItemClickListener(orderListener);
         
         LinearLayout tTableParent = (LinearLayout) findViewById(R.id.main_data);
@@ -236,7 +237,8 @@ public class CafeMenuActivity extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			dialogObject = orderAdapter.getItem(position);
+			ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
+			dialogObject = tLstLayout.getAdapter().getItem(position);
 			showDialog(DIALOG_ORDER_ADD);
 			
 		}
@@ -284,7 +286,7 @@ public class CafeMenuActivity extends Activity {
     		
     		/*Assign adapter*/
     		ListView tLstLayout = (ListView) tll.findViewById(R.id.main_order_layout);
-            tLstLayout.setAdapter(orderAdapter);
+            tLstLayout.setAdapter(new OrderAdapter(this, R.layout.main_order_item));
             
             /*Reset order if req*/
         	if (Order.getSize() == 0) {
@@ -370,7 +372,8 @@ public class CafeMenuActivity extends Activity {
     }
     
     public void updateOrderDetails () {
-    	orderAdapter.notifyDataSetChanged();
+    	ListView tLstLayout = (ListView) findViewById(R.id.main_order_layout);
+    	((OrderAdapter)tLstLayout.getAdapter()).notifyDataSetChanged();
 
     	TextView tv = (TextView) findViewById(R.id.order_total_sum);
     	if (Order.getSize() == 0) {
@@ -416,7 +419,7 @@ public class CafeMenuActivity extends Activity {
 		
 		/*Assign adapter*/
 		ListView tLstLayout = (ListView) tll.findViewById(R.id.main_order_layout);
-        tLstLayout.setAdapter(orderAdapter);
+        tLstLayout.setAdapter(new OrderAdapter(this, R.layout.main_order_item_black));
         tLstLayout.setOnItemClickListener(orderListener);
     	
     }
@@ -425,6 +428,7 @@ public class CafeMenuActivity extends Activity {
     	/*TODO: Check connectivity and server answer */
     	try {
     		((Button) v).setEnabled(false);
+    		((Button) v).setText(R.string.order_send_progress);
 			new SendDataToServer().execute(Order.toJSON());
 		} catch (JSONException e) {
 			Log.e(LOG_TAG, "Can't generate JSON", e);
@@ -495,5 +499,11 @@ public class CafeMenuActivity extends Activity {
     		break;
     	}
     }
-
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuItem mi = menu.add(0, 1, 0, "Preferences");
+    	mi.setIntent(new Intent(this, PrefsActivity.class));
+    	return super.onCreateOptionsMenu(menu);
+    }
 }

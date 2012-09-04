@@ -15,10 +15,12 @@ import android.widget.TextView;
 public class OrderAdapter extends BaseAdapter {
 	private Context ctx;
 	private LayoutInflater linf;
+	private int styled_layout;
 	
-	public OrderAdapter(Context context) {
+	public OrderAdapter(Context context, int layout) {
 		ctx = context;
 		linf = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		styled_layout = layout;
 	}
 	
 	@Override
@@ -40,7 +42,7 @@ public class OrderAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View view = convertView;
 		if (view == null) {
-			view = linf.inflate(R.layout.main_order_item, parent, false);
+			view = linf.inflate(styled_layout, parent, false);
 		}
 		
 		((TextView) view.findViewById(R.id.order_name)).setText(Order.getItemByIndex(position).getName());

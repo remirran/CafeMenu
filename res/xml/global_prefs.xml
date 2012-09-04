@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <EditTextPreference android:title="@string/pref_code_title" android:key="restaurant" android:summary="@string/pref_code_summary"/>
+    <EditTextPreference 
+        android:title="@string/pref_code_title"
+		android:key="restaurant"
+		android:defaultValue="@string/pref_code_defaut"
+		android:summary="@string/pref_code_summary"/>
+    <EditTextPreference 
+        android:title="@string/pref_table_title"
+        android:key="table"
+        android:defaultValue="@string/pref_table_default"
+        android:summary="@string/pref_table_summary"/>
 </PreferenceScreen>
