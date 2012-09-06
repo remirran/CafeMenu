@@ -51,4 +51,15 @@
     <string name="pref_table_title">Столик</string>
     <string name="pref_table_summary">Номер столика</string>
     <string name="pref_table_default">0</string>
+    
+    <string name="pref_style_title">Стиль</string>
+    <string name="pref_style_dialog_title">Выбор стиля</string>
+    <string name="pref_style_summary">Выбор стиля оформления</string>
+    <string name="pref_style_default">0</string>
+    <string-array name="pref_style_entries">
+        <item>0</item>
+    </string-array>
+    <string-array name="pref_style_values">
+        <item>По умолчанию</item>
+    </string-array>
 </resources>
