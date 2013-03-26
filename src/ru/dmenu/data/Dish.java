@@ -1,4 +1,4 @@
-package com.remirran.digitalmenu.data;
+package ru.dmenu.data;
 
 public class Dish extends Section {
 	private String tDesc;

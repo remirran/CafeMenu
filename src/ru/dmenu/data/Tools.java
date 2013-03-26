@@ -1,11 +1,11 @@
-package com.remirran.digitalmenu.data;
+package ru.dmenu.data;
 
 import java.util.Formatter;
 import java.util.Locale;
 
 import android.content.Context;
 
-import com.remirran.digitalmenu.R;
+import ru.dmenu.R;
 
 public class Tools {
 	public static String formatCurrency(Context ctx, String arg) {

@@ -1,8 +1,11 @@
-package com.remirran.digitalmenu;
+package ru.dmenu;
 
-import com.remirran.digitalmenu.data.ExtData;
+import ru.dmenu.data.ExtData;
+
+import ru.dmenu.R;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,21 +22,29 @@ public class TitleScreenActivity extends Activity {
 		ImageView tAdv = (ImageView) findViewById(R.id.title_adv_img);
 		ExtData.getInstance().fillAdv(tAdv);
 		
-		
-		
-		TextView enterButton = (TextView) findViewById(R.id.title_enter_button);
+		final TextView enterButton = (TextView) findViewById(R.id.title_enter_button);
 		Animation anim = AnimationUtils.loadAnimation(this, R.anim.title_enter_text_rotation);
 		enterButton.startAnimation(anim);
 		
-		enterButton.setOnClickListener(new OnClickListener() {
+		final OnClickListener defListener = new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				/* TODO: check that ImageView is destroyed properly */
 				finish();
-				
 			}
-		});
+		};
+		
+		OnClickListener cfgListener = new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+		        /*Show settings here*/
+		        Intent tSettingsScreen = new Intent(TitleScreenActivity.this, PrefsActivity.class);
+		        startActivity(tSettingsScreen);
+				enterButton.setOnClickListener(defListener);
+			}
+		};
+		enterButton.setOnClickListener(cfgListener);
 	}
-
+	
 }

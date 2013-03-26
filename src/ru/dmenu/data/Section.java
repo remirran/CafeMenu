@@ -1,4 +1,4 @@
-package com.remirran.digitalmenu.data;
+package ru.dmenu.data;
 
 public class Section implements Comparable<Section>{
 	private String tId;

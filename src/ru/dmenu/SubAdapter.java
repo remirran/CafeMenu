@@ -1,8 +1,10 @@
-package com.remirran.digitalmenu;
+package ru.dmenu;
 
 import java.util.Vector;
 
-import com.remirran.digitalmenu.data.Section;
+import ru.dmenu.data.Section;
+
+import ru.dmenu.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;

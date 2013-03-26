@@ -37,6 +37,8 @@
     <string name="order_thanks">Ваш заказ отправлен на кухню. Через пару минут Вам его принесут. А пока Вы можете проверить почту, почитать новости, посмотреть фильм или сыграть в игры</string>
     <string name="dialog_add_title">Добавить в заказ</string>
     
+    <string name="call_waiter">Позвать официанта</string>
+    
     <string name="add">Добавить</string>
     <string name="change">Изменить</string>
     <string name="not_modify">Не добавлять</string>
@@ -62,4 +64,5 @@
     <string-array name="pref_style_values">
         <item>По умолчанию</item>
     </string-array>
+    <string name="pref_hidden">Скрыть</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.remirran.digitalmenu;
+package ru.dmenu;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

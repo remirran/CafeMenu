@@ -1,4 +1,4 @@
-package com.remirran.digitalmenu.data;
+package ru.dmenu.data;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,8 +26,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 
-import com.remirran.digitalmenu.CafeMenuActivity;
-import com.remirran.digitalmenu.R;
+import ru.dmenu.CafeMenuActivity;
+
+import ru.dmenu.R;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,12 +41,14 @@ import android.graphics.Bitmap.Config;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.http.AndroidHttpClient;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 
 public class FileCache {
 	private static final String LOG_TAG = "FileCache";
 	public static final long CACHE_TIME = 31536000; /* One year */
+	private static Downloader mDownloader;
 	
 	public class CacheEntry {
 		private static final int MAX_AVAILABLE = 1;
@@ -59,7 +62,16 @@ public class FileCache {
 		private boolean mParsed = false;
 		private boolean mForceReload = false;
 		private boolean mResizeable = false;
+		private Handler mHandler;
 		
+		public Handler getHandler() {
+			return mHandler;
+		}
+
+		public void setHandler(Handler mHandler) {
+			this.mHandler = mHandler;
+		}
+
 		/* Error protection */
 		private short mDownloadsCounter = 0;
 		
@@ -72,6 +84,12 @@ public class FileCache {
 				updateURIDeps();
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "I/O error: url=" + uri, e);
+			}
+		}
+		
+		public void enqueue() {
+			if (isUriValid() && (!exists() || hasImageView())) {
+				mDownloader.enqueue(this);
 			}
 		}
 		
@@ -125,6 +143,7 @@ public class FileCache {
 			try {
 				lock.acquire();
 				this.mImageView = new WeakReference<ImageView>(iv);
+				setHandler(new Handler());
 			} catch (InterruptedException e) {
 				Log.w(LOG_TAG, "Interrupted: " + uri, e);
 			} finally {
@@ -269,6 +288,27 @@ public class FileCache {
 			return uri != null && !uri.isEmpty() && uri.startsWith("http://");
 		}
 		
+		public void applyImage() {
+			if ( exists() && getImageView() != null ) {
+				Runnable r = new Runnable() {
+					
+					@Override
+					public void run() {
+						getImageView().setImageBitmap(
+								isResizeable()?
+										getResizedBitmap()
+										:getBitmap());
+						clearImageView();
+					}
+				};
+				try {
+					getHandler().post(r);
+				} catch (NullPointerException e) {
+					Log.w(LOG_TAG, "Interrupted Exception: " + uri, e);
+				}
+			}
+		}
+		
 		public void process() {
 			try {
 				lock.acquire();
@@ -300,6 +340,8 @@ public class FileCache {
 		return mInstance;
 	}
 	private FileCache() {
+		mDownloader = new Downloader();
+		mDownloader.start();
 	}
 	
 	public static CacheEntry request(final String tag) {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.remirran.digitalmenu.DishLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ru.dmenu.DishLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:id="@+id/main_table_item"
     android:layout_height="fill_parent">
-	<com.remirran.digitalmenu.MenuImage 
+	<ru.dmenu.MenuImage 
         android:id="@+id/main_table_img" 
         android:contentDescription="@string/main_text_img_desc"
         android:adjustViewBounds="true"
@@ -41,4 +41,4 @@
 	        android:id="@+id/main_table_item_add_button"
 	        android:onClick="onTableImageButtonClick"/>
 	</LinearLayout>
-</com.remirran.digitalmenu.DishLayout>
+</ru.dmenu.DishLayout>

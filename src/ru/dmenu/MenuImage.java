@@ -1,7 +1,7 @@
-package com.remirran.digitalmenu;
+package ru.dmenu;
 
-import com.remirran.digitalmenu.data.Dish;
-import com.remirran.digitalmenu.data.ExtData;
+import ru.dmenu.data.Dish;
+import ru.dmenu.data.ExtData;
 
 import android.content.Context;
 import android.util.AttributeSet;

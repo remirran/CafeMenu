@@ -1,7 +1,9 @@
-package com.remirran.digitalmenu;
+package ru.dmenu;
 
-import com.remirran.digitalmenu.data.Order;
-import com.remirran.digitalmenu.data.Tools;
+import ru.dmenu.data.Order;
+import ru.dmenu.data.Tools;
+
+import ru.dmenu.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;

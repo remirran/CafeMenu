@@ -1,4 +1,4 @@
-package com.remirran.digitalmenu.data;
+package ru.dmenu.data;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,6 +6,11 @@ import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.wifi.WifiManager;
 
 public class Order {
 	private static Order me = null;
@@ -145,8 +150,12 @@ public class Order {
 		JSONObject retval = new JSONObject();
 		JSONObject order = new JSONObject();
 		retval.put("order", order);
-		order.put("device", android.os.Build.MODEL);
-		order.put("table", "0");
+		
+		WifiManager wm = (WifiManager)ExtData.getContext().getSystemService(Context.WIFI_SERVICE);
+		order.put("device", wm.getConnectionInfo().getMacAddress());
+		
+		SharedPreferences shPrefs = ExtData.getContext().getSharedPreferences("global_prefs.xml", Activity.MODE_PRIVATE);
+		order.put("table", shPrefs.getString("pref_table", "0"));
 		
 		JSONArray dishes = new JSONArray();
 		JSONArray count = new JSONArray();

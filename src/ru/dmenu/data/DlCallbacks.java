@@ -1,6 +1,6 @@
-package com.remirran.digitalmenu.data;
+package ru.dmenu.data;
 
-import com.remirran.digitalmenu.data.FileCache.CacheEntry;
+import ru.dmenu.data.FileCache.CacheEntry;
 
 public interface DlCallbacks {
 	void doParseXML(CacheEntry cache);

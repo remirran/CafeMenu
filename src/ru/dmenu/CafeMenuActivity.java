@@ -1,4 +1,4 @@
-package com.remirran.digitalmenu;
+package ru.dmenu;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,13 +18,15 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ru.dmenu.data.Dish;
+import ru.dmenu.data.ExtData;
+import ru.dmenu.data.Order;
+import ru.dmenu.data.Section;
+import ru.dmenu.data.Tools;
+
 import com.HorizontalPager.dynamicPaging.HorizontalPager;
 import com.HorizontalPager.dynamicPaging.HorizontalPager.OnScreenSwitchListener;
-import com.remirran.digitalmenu.data.Dish;
-import com.remirran.digitalmenu.data.ExtData;
-import com.remirran.digitalmenu.data.Order;
-import com.remirran.digitalmenu.data.Section;
-import com.remirran.digitalmenu.data.Tools;
+import ru.dmenu.R;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -41,8 +43,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -81,10 +81,6 @@ public class CafeMenuActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 	            WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
         setContentView(R.layout.main);
-        
-        /*Show settings here*/
-        Intent tSettingsScreen = new Intent(this, PrefsActivity.class);
-        startActivity(tSettingsScreen);
         
         ExtData.setContext(this);
         

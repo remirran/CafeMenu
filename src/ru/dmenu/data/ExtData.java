@@ -1,4 +1,4 @@
-package com.remirran.digitalmenu.data;
+package ru.dmenu.data;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,11 +12,13 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import com.remirran.digitalmenu.CafeMenuActivity;
-import com.remirran.digitalmenu.R;
-import com.remirran.digitalmenu.data.FileCache.CacheEntry;
+import ru.dmenu.CafeMenuActivity;
+import ru.dmenu.data.FileCache.CacheEntry;
+
+import ru.dmenu.R;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -68,7 +70,8 @@ public class ExtData implements DlCallbacks {
 		state = STATE_NONE;
 		/* Spawn a new task to update the structures */
 		CacheEntry request = FileCache.request(XML_URI, true);
-		new Downloader(this).Setup(request);
+		request.setHandler(new Handler());
+		request.enqueue();
 	}
 	/*TODO: remove this later*/
 	public static Context getContext() {
@@ -80,7 +83,7 @@ public class ExtData implements DlCallbacks {
 	
 	public void refresh () {
 		CacheEntry request = FileCache.request(XML_URI, true);
-		new Downloader(this).Setup(request);
+		request.enqueue();
 	}
 	
 	public void setState(int stateNew) throws IndexOutOfBoundsException {
@@ -110,7 +113,7 @@ public class ExtData implements DlCallbacks {
 				advUri = context.getString(R.string.xml_uri) + value;
 				CacheEntry request = FileCache.request(ADV_TAG);
 				request.setUri(advUri);
-				new Downloader(this).Setup(request);
+				request.enqueue();
 			}
 			break;
 		case STATE_UPDATE:
@@ -136,7 +139,7 @@ public class ExtData implements DlCallbacks {
 			} else if (key.equals("img") && value.trim().startsWith("/")) {
 				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
 				CacheEntry request = FileCache.request(currentObj.getImgUri(), false);
-				new Downloader(this).Setup(request);
+				request.enqueue();
 			} else if (key.equals("category")) {
 				currentObj.setName(value);
 			}
@@ -156,7 +159,7 @@ public class ExtData implements DlCallbacks {
 				currentObj.setImgUri( context.getString(R.string.xml_uri) + value.trim() );
 				CacheEntry request = FileCache.request(currentObj.getImgUri(), false);
 				request.setResizeable(true);
-				new Downloader(this).Setup(request);
+				request.enqueue();
 			}
 			break;
 		default: 
@@ -237,7 +240,7 @@ public class ExtData implements DlCallbacks {
 				request = FileCache.request(uri, false);
 			}
 			request.setImageView(iv);
-			new Downloader(this).Setup(request);
+			request.enqueue();
 		} catch (NullPointerException e) {
 			
 		}

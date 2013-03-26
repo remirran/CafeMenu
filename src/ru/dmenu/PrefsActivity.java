@@ -1,4 +1,6 @@
-package com.remirran.digitalmenu;
+package ru.dmenu;
+
+import ru.dmenu.R;
 
 import android.app.Activity;
 import android.os.Bundle;
