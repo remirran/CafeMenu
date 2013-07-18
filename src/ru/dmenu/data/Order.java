@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
+import android.preference.PreferenceManager;
 
 public class Order {
 	private static Order me = null;
@@ -154,7 +155,7 @@ public class Order {
 		WifiManager wm = (WifiManager)ExtData.getContext().getSystemService(Context.WIFI_SERVICE);
 		order.put("device", wm.getConnectionInfo().getMacAddress());
 		
-		SharedPreferences shPrefs = ExtData.getContext().getSharedPreferences("global_prefs.xml", Activity.MODE_PRIVATE);
+		SharedPreferences shPrefs = PreferenceManager.getDefaultSharedPreferences(ExtData.getContext());
 		order.put("table", shPrefs.getString("pref_table", "0"));
 		
 		JSONArray dishes = new JSONArray();

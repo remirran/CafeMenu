@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">DigitalMenu</string>
     <string name="xml_uri">http://www.dmenu.ru/</string>
+    <string name="tables_ext">tables</string>
     <string name="restaurant">1010101</string>
     <string name="sample_section">Европейская кухня</string>
     <string name="sample_sub">Холодные закуски</string>

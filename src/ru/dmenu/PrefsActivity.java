@@ -21,4 +21,16 @@ public class PrefsActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
 	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		synchronized (TitleScreenActivity.pref_sync) {
+			TitleScreenActivity.pref_flag = true;
+			TitleScreenActivity.pref_sync.notifyAll();
+		}
+	}
+	
+	
 }

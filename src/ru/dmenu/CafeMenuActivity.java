@@ -31,11 +31,14 @@ import ru.dmenu.R;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -352,6 +355,7 @@ public class CafeMenuActivity extends Activity {
     	if (resultCode == RESULT_OK) {
     		switch(requestCode) {
     		case REQ_CODE_TABLE_ID:
+    			//TODO: Use this function to update XML after 
     			String tableId = data.getStringExtra("tableId");
     			Log.d("hz", tableId);
     			break;
@@ -448,7 +452,10 @@ public class CafeMenuActivity extends Activity {
 	    	try {
 	    		JSONObject data = params[0];
 	    		DefaultHttpClient http = new DefaultHttpClient();
-	    		post = new HttpPost(getString(R.string.xml_uri) + getString(R.string.restaurant));
+	    		
+	    		SharedPreferences shPrefs = PreferenceManager.getDefaultSharedPreferences(ExtData.getContext());
+	    		
+	    		post = new HttpPost(getString(R.string.xml_uri) + shPrefs.getString("pref_restaurant", "0"));
 	    		ByteArrayEntity se = new ByteArrayEntity(data.toString().getBytes("UTF-8"));
 	    		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 	    		post.setEntity(se);
@@ -510,5 +517,49 @@ public class CafeMenuActivity extends Activity {
     	MenuItem mi = menu.add(0, 1, 0, "Preferences");
     	mi.setIntent(new Intent(this, PrefsActivity.class));
     	return super.onCreateOptionsMenu(menu);
+    }
+    
+    private class callWaiter extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			HttpPost post = null;
+			try {
+				DefaultHttpClient http = new DefaultHttpClient();
+				SharedPreferences shPrefs = PreferenceManager.getDefaultSharedPreferences(ExtData.getContext());
+				
+				JSONObject data = new JSONObject();
+				data.put("restaurant_code", shPrefs.getString("pref_restaurant", "0"));
+				data.put("table_code", shPrefs.getString("pref_table", "0"));
+				data.put("busy", 0);
+				data.put("waiter", 1);
+				
+				post = new HttpPost(getString(R.string.xml_uri) + getString(R.string.tables_ext)); //TODO: Replace later with REST
+				
+				ByteArrayEntity se = new ByteArrayEntity(data.toString().getBytes("UTF-8"));
+				se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+				post.setEntity(se);
+				HttpResponse response = http.execute(post);
+			} catch (UnsupportedEncodingException e) {
+				Log.e(LOG_TAG, "Unsupported encoding", e);
+	    		post.abort();
+			} catch (ClientProtocolException e) {
+				Log.e(LOG_TAG, "Can't send data", e);
+				post.abort();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
+    	
+    }
+    
+    public void onWaiterButtonClick(View v) {
+    	new callWaiter().execute(new Void[0]);
     }
 }

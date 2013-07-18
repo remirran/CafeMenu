@@ -18,7 +18,9 @@ import ru.dmenu.data.FileCache.CacheEntry;
 import ru.dmenu.R;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -64,7 +66,8 @@ public class ExtData implements DlCallbacks {
 	/* Methods */
 	public ExtData() {
 		/* TODO: replace restaurant with a configurable option */
-		XML_URI = context.getString(R.string.xml_uri) + context.getString(R.string.restaurant) + ".xml";
+		SharedPreferences shPrefs = PreferenceManager.getDefaultSharedPreferences(ExtData.getContext());
+		XML_URI = context.getString(R.string.xml_uri) + shPrefs.getString("pref_restaurant", "0") + ".xml";
 		CACHE_DIR = context.getCacheDir();
 		DENSITY = context.getResources().getDisplayMetrics().density;
 		state = STATE_NONE;

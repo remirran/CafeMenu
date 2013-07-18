@@ -58,6 +58,7 @@
 			    android:layout_width="fill_parent"
 			    android:id="@+id/main_call_waiter"
 			    android:text="@string/call_waiter"
+			    android:onClick="onWaiterButtonClick"
 			    android:layout_alignParentBottom="true">
 			</Button>
 		</RelativeLayout>

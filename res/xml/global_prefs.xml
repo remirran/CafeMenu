@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:key="global_prefs">
     <EditTextPreference 
         android:title="@string/pref_code_title"
 		android:key="pref_restaurant"
